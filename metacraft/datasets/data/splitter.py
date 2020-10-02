@@ -4,8 +4,6 @@ from collections import OrderedDict, defaultdict
 
 from metacraft.datasets.benchmarks.base import Task, ConcatTask, SubsetTask
 
-__all__ = ['MetaSplitter']
-
 
 class MetaSplitter(object):
     '''

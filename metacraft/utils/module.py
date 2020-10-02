@@ -57,7 +57,7 @@ def update_module(module, update_list = None, memo = None):
     for module_key in module._modules:
         module._modules[module_key] = update_module(
             module._modules[module_key],
-            updates = None,
+            update_list = None,
             memo = memo
         )
 

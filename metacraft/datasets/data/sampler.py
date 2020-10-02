@@ -6,8 +6,6 @@ from torch.utils.data.sampler import RandomSampler as TorchRandomSampler
 
 from metacraft.datasets.benchmarks.base import MetaDataset
 
-__all__ = ['SequentialSampler', 'RandomSampler']
-
 
 class SequentialSampler(TorchSequentialSampler):
     def __init__(self, data_source):

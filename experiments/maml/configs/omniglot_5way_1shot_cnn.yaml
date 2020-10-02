@@ -1,0 +1,19 @@
+# dataset parameters
+dataset: omniglot  # 'omniglot'
+dataset_path: /Users/zou/Desktop/metacraft/data/omniglot  # folder with dataset
+
+# training parameters
+n_way: 5  # number of classes per task
+k_shot_support: 1  # number of samples per class in the support set
+k_shot_query: 1  # number of samples per class in the query set
+batch_size: 16  # batch size
+outer_lr: 0.001  # learning rate of the outer loop
+inner_lr: 0.4  # learning rate of the inner loop
+inner_steps: 1  # how many inner gradient steps we should perform
+num_workers: 4  # number of workers for loading data in the DataLoader
+print_freq: 200  # print training status every __ batches
+num_batches: 100  # number of batches the model is trained over
+
+# checkpoint saving parameters
+checkpoint_path: /Users/zou/Desktop/metacraft/checkpoints  # path to save checkpoints, null if never save checkpoints
+checkpoint_basename: maml_omniglot  # basename of the checkpoint

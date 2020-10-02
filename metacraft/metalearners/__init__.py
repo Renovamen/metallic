@@ -1,1 +1,1 @@
-from metacraft.metalearners.maml import MAML, maml_inner_loop_update
+from metacraft.metalearners.maml import MAML

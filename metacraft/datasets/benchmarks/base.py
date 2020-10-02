@@ -9,11 +9,6 @@ from torchvision.transforms import Compose
 
 from metacraft.datasets.transforms import FixTargetTransform, EncodeTarget
 
-__all__ = [
-    'Dataset', 'Task', 'ConcatTask', 'SubsetTask',
-    'ClassDataset', 'MetaDataset'
-]
-
 
 class Dataset(TorchDataset):
     '''

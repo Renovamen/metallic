@@ -16,9 +16,14 @@ from metacraft.utils.module import update_module, clone_module
 An inner loop update step in MAML.
 
 input params:
-    model (nn.Module): The model to update.
-    inner_lr (float): Inner loop learning rate.
-    grad_list (list): A list of gradients for each parameter of the model.
+    model (nn.Module):
+        The model to update.
+    
+    inner_lr (float):
+        Inner loop learning rate.
+    
+    grad_list (list):
+        A list of gradients for each parameter of the model.
 '''
 def maml_inner_loop_update(model, inner_lr, grad_list):
     param_list = list(model.parameters())
@@ -40,11 +45,20 @@ def maml_inner_loop_update(model, inner_lr, grad_list):
 class MAML(nn.Module):
     '''
     attributes:
-        model (nn.Module): Module to be wrapped.
-        lr (float): Fast adaptation learning rate.
-        first_order (bool): FOMAML?
-        allow_unused (bool): Whether to allow differentiation of unused parameters.
-        allow_nograd (bool): Whether to allow adaptation with parameters that have `requires_grad = False`.
+        model (nn.Module):
+            Module to be wrapped.
+        
+        lr (float):
+            Fast adaptation learning rate.
+
+        first_order (bool, optional, default = False):
+            FOMAML?
+
+        allow_unused (bool, optional, default = None):
+            Whether to allow differentiation of unused parameters.
+
+        allow_nograd (bool, optional, default = False):
+            Whether to allow adaptation with parameters that have `requires_grad = False`.
     '''
     def __init__(self, model, lr, first_order = False, 
                  allow_unused = None, allow_nograd = False):
@@ -69,16 +83,23 @@ class MAML(nn.Module):
     Takes a gradient step on the loss and updates the cloned parameters in place.
 
     input params:
-        loss (Tensor): Loss to minimize upon update.
-        first_order: (bool): Whether to use first- or second-order updates, 
-                             defaults to self.first_order.
-        allow_unused (bool): Whether to allow differentiation of unused 
-                             parameters, defaults to self.allow_unused.
-        allow_nograd (bool): Whether to allow adaptation with parameters that 
-                             have `requires_grad = False`. Defaults to 
-                             self.allow_nograd.
+        loss (Tensor):
+            Loss to minimize upon update.
+        
+        first_order: (bool, optional, default = None):
+            Whether to use first- or second-order updates, defaults 
+            to self.first_order.
+
+        allow_unused (bool, optional, default = None): 
+            Whether to allow differentiation of unused parameters, 
+            defaults to self.allow_unused.
+
+        allow_nograd (bool, optional, default = None):
+            Whether to allow adaptation with parameters that have 
+            `requires_grad = False`. Defaults to self.allow_nograd.
     '''
-    def inner_loop_step(self, loss, first_order = None, allow_unused = None, allow_nograd = None):
+    def inner_loop_step(self, loss, first_order = None, allow_unused = None, 
+                        allow_nograd = None):
         
         if first_order is None:
             first_order = self.first_order
@@ -121,17 +142,7 @@ class MAML(nn.Module):
                 print('learn2learn: Maybe try with allow_nograd=True and/or allow_unused=True ?')
 
         # update the module
-        self.module = inner_loop_update(self.module, self.lr, gradients)
-
-
-    def train_epoch(self, dataloader, num_batches = 500, **kwargs):
-        with tqdm(total = num_batches, **kwargs) as pbar:
-            for results in self.train_iter(dataloader, num_batches = num_batches):
-                pbar.update(1)
-                postfix = {'loss': '{0:.4f}'.format(results['mean_outer_loss'])}
-                if 'accuracies_after' in results:
-                    postfix['accuracy'] = '{0:.4f}'.format(np.mean(results['accuracies_after']))
-                pbar.set_postfix(**postfix)
+        self.module = maml_inner_loop_update(self.module, self.lr, gradients)
 
 
     '''
@@ -143,14 +154,17 @@ class MAML(nn.Module):
     For more information, refer to learn2learn.clone_module().
 
     input param:
-        first_order (bool): Whether the clone uses first- or second-order 
-                            updates. Defaults to self.first_order.
-        allow_unused (bool): Whether to allow differentiation of unused 
-                             parameters. Defaults to self.allow_unused.
-        allow_nograd (bool): Whether to allow adaptation with parameters that 
-                             have `requires_grad = False`. Defaults to 
-                             self.allow_nograd.
-
+        first_order (bool, optional, default = None):
+            Whether the clone uses first- or second-order updates.
+            Defaults to `self.first_order`.
+        
+        allow_unused (bool, optional, default = None):
+            Whether to allow differentiation of unused parameters. Defaults 
+            to `self.allow_unused`.
+        
+        allow_nograd (bool, optional, default = None):
+            Whether to allow adaptation with parameters that have 
+            `requires_grad = False`. Defaults to `self.allow_nograd`.
     '''
     def clone(self, first_order = None, allow_unused = None, allow_nograd = None):
 

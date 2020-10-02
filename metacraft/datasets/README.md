@@ -1,7 +1,10 @@
-# Datasets for Meat-Learning
+# Datasets for Meta-Learning
 
-Some datasets and operations commonly used in meta-learning tasks, adapted from [Torchmeta](https://github.com/tristandeleu/pytorch-meta).
+Some datasets and operations commonly used in meta-learning tasks, adapted from [Torchmeta](https://github.com/tristandeleu/pytorch-meta). 
 
+In fact, it can be achieved by `import torchmeta` easily. I write the code just for understanding meta-dataset loading and minibatching better.
+
+&nbsp;
 ## Omniglot
 
 The Omniglot dataset contains 1623 handwritten characters (classes) collected from 50 alphabets. There are 20 examples associated with each character, where each example is drawn by a different human subject. It is first introduced by:
