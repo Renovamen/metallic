@@ -1,7 +1,6 @@
 from torchvision.transforms import Compose, Resize, ToTensor
 
 from metacraft.datasets.benchmarks import Omniglot
-from metacraft.datasets.benchmarks.base import MetaDataset, SubsetTask
 from metacraft.datasets.transforms import Rotation
 from metacraft.datasets.data import MetaSplitter, BatchMetaDataLoader
 
@@ -10,8 +9,8 @@ def load_data(config):
     
     dataset_transform = MetaSplitter(
         shuffle = True,
-        k_shot_support = config.k_shot_support, 
-        k_shot_query = config.k_shot_query
+        k_shot_support = config.k_shot, 
+        k_shot_query = config.k_shot
     )
 
     if config.dataset == 'omniglot':

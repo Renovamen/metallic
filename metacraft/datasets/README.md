@@ -13,4 +13,4 @@ The Omniglot dataset contains 1623 handwritten characters (classes) collected fr
 
 The Omniglot dataset should be downloaded [here (images_background)](https://github.com/brendenlake/omniglot/blob/master/python/images_background.zip) and [here (images_evaluation)](https://github.com/brendenlake/omniglot/blob/master/python/images_evaluation.zip) and unziped first.
 
-The meta train / val /test splits are taken from [jakesnell/prototypical-networks](https://github.com/jakesnell/prototypical-networks). These splits are over 1028 / 172 / 423 classes (characters).
+The meta train / val / test splits are taken from [jakesnell/prototypical-networks](https://github.com/jakesnell/prototypical-networks). These splits are over 1028 / 172 / 423 classes (characters).

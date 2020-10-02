@@ -11,7 +11,7 @@ outer_lr: 0.001  # learning rate of the outer loop
 inner_lr: 0.4  # learning rate of the inner loop
 inner_steps: 1  # how many inner gradient steps we should perform
 num_workers: 4  # number of workers for loading data in the DataLoader
-print_freq: 200  # print training status every __ batches
+print_freq: 1  # print training status every __ batches
 num_batches: 100  # number of batches the model is trained over
 
 # checkpoint saving parameters

@@ -5,18 +5,20 @@ import yaml
 convert a dict into a Class
 '''
 class Config:
-	def __init__(self, entries: dict={}):
-		for k, v in entries.items():
-			if isinstance(v, dict):
-				self.__dict__[k] = Config(v)
-			else:
-				self.__dict__[k] = v
+    def __init__(self, entries: dict={}):
+        for k, v in entries.items():
+            if isinstance(v, dict):
+                self.__dict__[k] = Config(v)
+            else:
+                self.__dict__[k] = v
 
 
 '''
-load configuration from a YAML file
+Load configuration from a YAML file.
+
 input param: 
     file_path: path to the config file (YAML)
+
 return:
     config (dict): configuration settings
 '''

@@ -20,16 +20,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+
 =============================================================================
 
 Metacraft is using the part of the following codes with the following licenses:
 
-    MIT License
-    Copyright (c) 2019-2020 Tristan Deleu
-    Torchmeta: https://github.com/tristandeleu/pytorch-meta
-    License: https://github.com/tristandeleu/pytorch-meta/blob/master/LICENSE
+MIT License
+Copyright (c) 2019-2020 Tristan Deleu
+Torchmeta: https://github.com/tristandeleu/pytorch-meta
+License: https://github.com/tristandeleu/pytorch-meta/blob/master/LICENSE
 
-    MIT License
-    Copyright (c) 2019 Debajyoti Datta, Ian Bunner, Praateek Mahajan, Sebastien Arnold
-    learn2learn: https://github.com/learnables/learn2learn
-    License: https://github.com/learnables/learn2learn/blob/master/LICENSE
+MIT License
+Copyright (c) 2019 Debajyoti Datta, Ian Bunner, Praateek Mahajan, Sebastien Arnold
+learn2learn: https://github.com/learnables/learn2learn
+License: https://github.com/learnables/learn2learn/blob/master/LICENSE

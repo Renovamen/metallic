@@ -17,3 +17,9 @@ python setup.py install
 ## Acknowledgements
 
 This toolbox is inspired by and widely adapted from [learn2learn](https://github.com/learnables/learn2learn) and [Torchmeta](https://github.com/tristandeleu/pytorch-meta). Thanks for these great works.
+
+
+&nbsp;
+## License
+
+Metacraft is MIT licensed, see the [LICENSE](LICENSE) file for more details.
