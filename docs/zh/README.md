@@ -17,7 +17,7 @@ python setup.py install
 
 Metacraft 受到了基于 PyTorch 的元学习库 [learn2learn](https://github.com/learnables/learn2learn) 和 [Torchmeta](https://github.com/tristandeleu/pytorch-meta) 的启发，并使用了这两个库中的部分代码。感谢这两个优秀的开源项目。
 
-[文档网站](https://metacraft.renovamen.ink) 基于 [Docute](https://docute.org)。
+[文档网站](https://metacraft.renovamen.ink)基于 [Docute](https://docute.org)。
 
 
 ## 开源协议
