@@ -35,7 +35,7 @@ def parse_opt():
     parser.add_argument(
         '--config',
         type = str,
-        default = 'experiments/maml/configs/omniglot_5way_1shot_cnn.yaml',
+        default = 'examples/configs/maml/omniglot_5way_1shot_cnn.yaml',
         help = 'Path to the configuration file (yaml).'
     )
     args = parser.parse_args()

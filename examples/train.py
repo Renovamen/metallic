@@ -1,24 +1,26 @@
+import sys
+
+sys.path.insert(0, '/Users/zou/Desktop/metacraft')
+
 import os
-import time
 import torch
 from torch import nn
-from torchvision.transforms import Compose, Resize, ToTensor
 import torch.backends.cudnn as cudnn
 
 from metacraft.models import OmniglotCNN, MLP
 from metacraft.metalearners import MAML
 
-from dataloader import load_data
-from opts import parse_opt
+from utils.metalearner import set_metalearner
+from utils.dataloader import load_data
+from utils.opts import parse_opt
 
 
 cudnn.benchmark = True  # set to true only if inputs to model are fixed size;
                         # otherwise lot of computational overhead
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def train(config):
 
-    train_loader, val_loader, test_loader = load_data(config)
+    train_loader, val_loader, _ = load_data(config)
 
     # set model
     model = OmniglotCNN(config.n_way)
@@ -28,32 +30,21 @@ def train(config):
         model.parameters(),
         lr = config.outer_lr
     )
+
     # loss function
     loss_function = nn.CrossEntropyLoss()
 
-    # move to device
-    model = model.to(device)
-    loss_function = loss_function.to(device)
-
-    # set meta-learner
-    maml = MAML(
-        model = model,
-        outer_optimizer = outer_optimizer,
-        loss_function = loss_function,
-        inner_lr = config.inner_lr,
-        inner_steps = config.inner_steps,
-        first_order = False,
-        device = device
-    )
+    # get meta-learner
+    metalearner = set_metalearner(config, model, outer_optimizer, loss_function)
 
     best_acc = 0.
 
     for epoch in range(config.num_epoches):
         # meta-train an epoch
-        maml.train(epoch, train_loader, config.num_batches, config.print_freq)
-        
+        metalearner.train(epoch, train_loader, config.num_batches, config.print_freq)
+
         # meta-validate an epoch, and get the average accuracy over all batches
-        recent_acc = maml.validate(epoch, val_loader, config.num_batches, config.print_freq)
+        recent_acc = metalearner.validate(epoch, val_loader, config.num_batches, config.print_freq)
 
         # if the current model achieves the best accuracy
         is_best = recent_acc > best_acc

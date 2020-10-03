@@ -103,22 +103,16 @@ class MAML(nn.Module):
         return clone_module(self.module)
 
 
-    def inner_loop_step(self, cloned_module, loss, first_order = None):
+    def inner_loop_step(self, cloned_module, loss):
         '''
         Take a gradient step on the loss and updates the cloned parameters in place.
 
         input params:
             loss (Tensor):
                 Loss to minimize upon update.
-
-            first_order: (bool, optional, default = None):
-                Whether to use first- or second-order updates, defaults
-                to self.first_order.
         '''
 
-        if first_order is None:
-            first_order = self.first_order
-        second_order = not first_order
+        second_order = not self.first_order
 
         gradients = grad(
             loss, cloned_module.parameters(),
@@ -199,9 +193,10 @@ class MAML(nn.Module):
             )
 
             # evaluate on the query set
-            query_output = cloned_module(query_input)
-            query_loss = self.loss_function(query_output, query_target)
-            query_loss /= len(query_input)
+            with torch.set_grad_enabled(meta_train):
+                query_output = cloned_module(query_input)
+                query_loss = self.loss_function(query_output, query_target)
+                query_loss /= len(query_input)
 
             # find accuracy on query set
             query_accuracy = get_accuracy(query_output, query_target)
@@ -283,6 +278,8 @@ class MAML(nn.Module):
         '''
         Meta-validate an epoch.
         '''
+
+        self.module.eval()
 
         batch_time = TrackMetric()  # forward prop. time
         outer_losses = TrackMetric()  # losses

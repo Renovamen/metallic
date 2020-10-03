@@ -1,3 +1,5 @@
+metalearner: 'fomaml'
+
 # dataset parameters
 dataset: omniglot  # 'omniglot'
 dataset_path: /Users/zou/Desktop/metacraft/data/omniglot  # folder with dataset
@@ -16,4 +18,4 @@ num_batches: 100  # number of batches the model is trained over
 
 # checkpoint saving parameters
 checkpoint_path: /Users/zou/Desktop/metacraft/checkpoints  # path to save checkpoints, null if never save checkpoints
-checkpoint_basename: maml_omniglot  # basename of the checkpoint
+checkpoint_basename: fomaml_omniglot  # basename of the checkpoint
