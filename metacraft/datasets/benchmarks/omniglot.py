@@ -43,6 +43,7 @@ class Omniglot(MetaDataset):
             A list of functions that augment the dataset with new classes. These classes 
             are transformations of existing classes. See `datasets.transforms.augmentations`.
     '''
+    
     def __init__(self, root, n_way, meta_split = None, use_vinyals_split = True, 
                  transform = None, dataset_transform = None, class_augmentations = None):
         

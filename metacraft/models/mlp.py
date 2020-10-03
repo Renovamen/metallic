@@ -24,6 +24,7 @@ class MLP(nn.Module):
         input_size (int):
             The size of the network's input.
     '''
+    
     def __init__(self, input_size, n_classes):
         
         super(MLP, self).__init__()

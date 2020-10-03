@@ -5,17 +5,17 @@ https://github.com/learnables/learn2learn/blob/master/learn2learn/utils.py
 import copy
 import torch
 
-'''
-Update the parameters of a module in-place, in a way that preserves
-differentiability:
-    [ param \gets param + update ] for param in param_list
-
-input params:
-    module (nn.Module): The module to update.
-    update_list (list): A list of gradients for each parameter of the model.
-                        If None, will use the tensors in .update attributes.
-'''
 def update_module(module, update_list = None, memo = None):
+    '''
+    Update the parameters of a module in-place, in a way that preserves
+    differentiability:
+        [ param \gets param + update ] for param in param_list
+
+    input params:
+        module (nn.Module): The module to update.
+        update_list (list): A list of gradients for each parameter of the model.
+                            If None, will use the tensors in .update attributes.
+    '''
 
     # some submodules might share parameters, so we should avoid duplicate updates
     # see: https://github.com/learnables/learn2learn/issues/174
@@ -67,34 +67,35 @@ def update_module(module, update_list = None, memo = None):
     return module
 
 
-'''
-Creates a copy of a list of parameters using torch.clone().
-
-input params:
-    param_list (list): Parameters to be cloned.
-
-return:
-    the cloned parameters (list)
-'''
 def clone_parameters(param_list):
+    '''
+    Creates a copy of a list of parameters using torch.clone().
+
+    input params:
+        param_list (list): Parameters to be cloned.
+
+    return:
+        the cloned parameters (list)
+    '''
+
     return [p.clone() for p in param_list]
 
 
-'''
-Creates a copy of a module, whose parameters/buffers/submodules are
-created using PyTorch's torch.clone().
-
-This implies that the computational graph is kept, and you can compute
-the derivatives of the new modules' parameters w.r.t the original
-parameters.
-
-input params:
-    module (nn.Module): Module to be cloned.
-
-return:
-    the cloned module (nn.Module)
-'''
 def clone_module(module, memo = None):
+    '''
+    Creates a copy of a module, whose parameters/buffers/submodules are
+    created using PyTorch's torch.clone().
+
+    This implies that the computational graph is kept, and you can compute
+    the derivatives of the new modules' parameters w.r.t the original
+    parameters.
+
+    input params:
+        module (nn.Module): Module to be cloned.
+
+    return:
+        the cloned module (nn.Module)
+    '''
 
     # some submodules might share parameters, so we should avoid duplicate updates
     # see: https://github.com/learnables/learn2learn/issues/174

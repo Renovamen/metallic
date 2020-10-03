@@ -5,20 +5,21 @@ from torch.autograd import grad
 from metacraft.utils.module import update_module, clone_module
 
 
-'''
-An inner loop update step in MAML.
-
-input params:
-    model (nn.Module):
-        The model to update.
-
-    inner_lr (float):
-        Inner loop learning rate.
-
-    grad_list (list):
-        A list of gradients for each parameter of the model.
-'''
 def maml_inner_loop_update(model, inner_lr, grad_list):
+    '''
+    An inner loop update step in MAML.
+
+    input params:
+        model (nn.Module):
+            The model to update.
+
+        inner_lr (float):
+            Inner loop learning rate.
+
+        grad_list (list):
+            A list of gradients for each parameter of the model.
+    '''
+
     param_list = list(model.parameters())
 
     # sanity check
@@ -89,31 +90,32 @@ class MAML(nn.Module):
         self.device = device
 
 
-    '''
-    Returns a copy of the module whose parameters and buffers are
-    `torch.clone`d from the original module.
-
-    This implies that back-propagating losses on the cloned module will
-    populate the buffers of the original module.
-
-    For more information, refer to utils.module.clone_module().
-    '''
     def clone(self):
+        '''
+        Returns a copy of the module whose parameters and buffers are
+        `torch.clone`d from the original module.
+
+        This implies that back-propagating losses on the cloned module will
+        populate the buffers of the original module.
+
+        For more information, refer to utils.module.clone_module().
+        '''
+
         return clone_module(self.module)
 
 
-    '''
-    Take a gradient step on the loss and updates the cloned parameters in place.
-
-    input params:
-        loss (Tensor):
-            Loss to minimize upon update.
-
-        first_order: (bool, optional, default = None):
-            Whether to use first- or second-order updates, defaults
-            to self.first_order.
-    '''
     def inner_loop_step(self, cloned_module, loss, first_order = None):
+        '''
+        Take a gradient step on the loss and updates the cloned parameters in place.
+
+        input params:
+            loss (Tensor):
+                Loss to minimize upon update.
+
+            first_order: (bool, optional, default = None):
+                Whether to use first- or second-order updates, defaults
+                to self.first_order.
+        '''
 
         if first_order is None:
             first_order = self.first_order
@@ -130,10 +132,11 @@ class MAML(nn.Module):
         return cloned_module
 
 
-    '''
-    Update the (cloned) parameters in the inner loop (adapt stage).
-    '''
     def inner_loop(self, cloned_module, support_input, support_target):
+        '''
+        Update the (cloned) parameters in the inner loop (adapt stage).
+        '''
+
         # inner loop: takes `inner_steps` gradient step
         for step in range(self.inner_steps):
             # compute loss on support set
@@ -146,20 +149,21 @@ class MAML(nn.Module):
         return cloned_module
 
 
-    '''
-    input params:
-        batch (OrderedDict):
-            Input data of the current batch. See `datasets.data.splitter.MetaSplitter`
-            for  details.
-
-        meta_train (bool, optional, default = True):
-            Whether we are performing meta-training?
-            It should be noted that, we only do backward propagation and
-            update the parameters in outer loop during the meta-training stage
-            (`meta_train = True`). During meta-test stage (`meta_train = False`),
-            we just compute the losses and accuracies.
-    '''
     def outer_loop(self, batch, meta_train = True):
+        '''
+        input params:
+            batch (OrderedDict):
+                Input data of the current batch. See `datasets.data.splitter.MetaSplitter`
+                for  details.
+
+            meta_train (bool, optional, default = True):
+                Whether we are performing meta-training?
+                It should be noted that, we only do backward propagation and
+                update the parameters in outer loop during the meta-training stage
+                (`meta_train = True`). During meta-test stage (`meta_train = False`),
+                we just compute the losses and accuracies.
+        '''
+
         # clear gradient of last batch
         self.outer_optimizer.zero_grad()
 
@@ -227,10 +231,10 @@ class MAML(nn.Module):
         return outer_loss, outer_accuracy
 
 
-    '''
-    Meta-train an epoch.
-    '''
     def train(self, epoch, train_loader, num_batches = 500, print_freq = 1):
+        '''
+        Meta-train an epoch.
+        '''
 
         self.module.train()
 
@@ -269,10 +273,10 @@ class MAML(nn.Module):
                 break
 
 
-    '''
-    Meta-validate an epoch.
-    '''
     def validate(self, epoch, val_loader, num_batches = 500, print_freq = 1):
+        '''
+        Meta-validate an epoch.
+        '''
 
         # set start time
         start = time.time()

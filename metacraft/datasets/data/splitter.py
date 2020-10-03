@@ -27,6 +27,7 @@ class MetaSplitter(object):
         random_state_seed (int, optional):
             seed of the np.RandomState. Defaults to '0'.
     '''
+    
     def __init__(self, shuffle = True, k_shot_support = None, 
                  k_shot_query = None, random_state_seed = 0):
     

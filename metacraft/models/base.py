@@ -4,7 +4,6 @@ from collections import OrderedDict
 
 
 class ConvBlock(nn.Module):
-
     '''
     A base convolutional block.
 
@@ -69,7 +68,6 @@ class ConvBlock(nn.Module):
 
 
 class ConvGroup(nn.Module):
-
     '''
     A base convolutional group.
 
@@ -124,7 +122,6 @@ class ConvGroup(nn.Module):
 
 
 class LinearBlock(nn.Module):
-
     '''
     A base linear block.
 

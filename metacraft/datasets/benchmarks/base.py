@@ -20,13 +20,16 @@ class Dataset(TorchDataset):
     attributes:
         index (int): index of this class
     '''
+
     def __init__(self, index, transform = None, target_transform = None):
         self.index = index
         self.transform = transform
         self.target_transform = target_transform
 
-    # compose multiple target transforms
     def target_transform_append(self, transform):
+        '''
+        Compose multiple target transforms.
+        '''
         if transform is None:
             return
         if self.target_transform is None:
@@ -46,6 +49,7 @@ class Task(Dataset):
         n_classes (int):
             Number of classes for the classification task.
     '''
+
     def __init__(self, index, n_classes, transform = None, target_transform = None):
         super(Task, self).__init__(index, transform = transform,
                                    target_transform = target_transform)
@@ -68,6 +72,7 @@ class ConcatTask(Task, ConcatDataset):
         n_classes (int):
             Number of classes.
     '''
+
     def __init__(self, datasets, n_classes, target_transform = None):
         
         index = tuple(task.index for task in datasets)
@@ -121,6 +126,7 @@ class ClassDataset(object):
             A list of functions that augment the dataset with new classes (transformed
             from existing classes). E.g. `transforms.HorizontalFlip()`. 
     '''
+
     def __init__(self, meta_split = None, class_augmentations = None):
         if meta_split not in ['train', 'val', 'test']:
             raise ValueError(
@@ -204,6 +210,7 @@ class MetaDataset(object):
             A function/transform that takes a dataset (ie. a task), and returns
             a transformed version of it. E.g. `MetaSplitter()`.
     '''
+
     def __init__(self, dataset, n_way, meta_split = None,
                  target_transform = None, dataset_transform = None):
         
@@ -243,17 +250,19 @@ class MetaDataset(object):
         ) # index (list: [class_id1, class_id2, ...])
         return self[tuple(index)]
 
-    '''
-    get a task with selected (`n_way`) classes
 
-    input param:
-        index (tuple: (class_id1, class_id2, ...)): 
-            (`n_way`) indexes of the classes to be sampled in the task
-    
-    return:
-        a task with selected classes
-    '''
     def __getitem__(self, index):
+        '''
+        get a task with selected (`n_way`) classes
+
+        input param:
+            index (tuple: (class_id1, class_id2, ...)): 
+                (`n_way`) indexes of the classes to be sampled in the task
+        
+        return:
+            a task with selected classes
+        '''
+
         assert len(index) == self.n_way
         # selected classes
         datasets = [self.dataset[i] for i in index]

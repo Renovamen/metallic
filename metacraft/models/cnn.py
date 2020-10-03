@@ -24,6 +24,7 @@ class OmniglotCNN(nn.Module):
             The size of the network's output. This corresponds to "N" in 
             "N-way" classification.
     '''
+
     def __init__(self, n_classes):
         
         super(OmniglotCNN, self).__init__()
@@ -47,14 +48,15 @@ class OmniglotCNN(nn.Module):
         self.classifier.bias.data.mul_(0.0)
 
 
-    '''
-    input params:
-        x: input data (batch_size, in_channels = 1, img_size = 28, img_size = 28)
-    
-    return:
-        scores: class scores (batch_size, n_classes)
-    '''
     def forward(self, x):
+        '''
+        input params:
+            x: input data (batch_size, in_channels = 1, img_size = 28, img_size = 28)
+        
+        return:
+            scores: class scores (batch_size, n_classes)
+        '''
+
         features = self.features(x)  # (batch_size, 64, 28, 28)
         features = features.mean(dim = [2, 3])  # (batch_size, 64, 1)
         features = features.view(features.size(0), -1)  # (batch_size, 64)
@@ -82,6 +84,7 @@ class MiniImagenetCNN(nn.Module):
             The size of the network's output. This corresponds to "N" in 
             "N-way" classification.
     '''
+
     def __init__(self, n_classes):
         
         super(OmniglotCNN, self).__init__()
@@ -105,14 +108,15 @@ class MiniImagenetCNN(nn.Module):
         self.classifier.bias.data.mul_(0.0)
 
 
-    '''
-    input params:
-        x: input data (batch_size, in_channels = 3, img_size = 84, img_size = 84)
-    
-    return:
-        scores: class scores (batch_size, n_classes)
-    '''
     def forward(self, x):
+        '''
+        input params:
+            x: input data (batch_size, in_channels = 3, img_size = 84, img_size = 84)
+        
+        return:
+            scores: class scores (batch_size, n_classes)
+        '''
+
         features = self.features(x)  # (batch_size, 32, 84 / 16 = 5, 84 / 16 = 5)
         features = features.view(features.size(0), -1)  # (batch_size, 32 × 5 × 5)
         scores = self.classifier(features)  # (batch_size, n_classes)

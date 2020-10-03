@@ -8,6 +8,7 @@ class EncodeTarget(object):
     attributes:
         n_classes (int): Number of classes.
     '''
+    
     def __init__(self, n_classes):
         super(EncodeTarget, self).__init__()
         self.n_classes = n_classes
@@ -49,17 +50,18 @@ class FixTargetTransform(object):
             A function/transform that takes a `PIL` image, and returns a 
             transformed version. See also `torchvision.transforms`.
     '''
+
     def __init__(self, transform = None):
         self.transform = transform
 
-    '''
-    input param:
-        index (str): A target.
-
-    return:
-        (Tuple): (target, its corresponding transform)
-    '''
     def __call__(self, index):
+        '''
+        input param:
+            index (str): A target.
+
+        return:
+            (Tuple): (target, its corresponding transform)
+        '''
         return (index, self.transform)
 
     def __repr__(self):
