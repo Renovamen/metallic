@@ -1,6 +1,6 @@
 # Metacraft
 
-[English](README.md) | **中文说明** | [文档](https://metacraft.renovamen.ink)
+[English](README.md) | **简体中文** | [文档](https://metacraft.renovamen.ink)
 
 
 Metacraft 是一个基于 [PyTorch](https://github.com/pytorch/pytorch) 的元学习（Meta-Learning）工具包。（实际上就是把我跑实验写的渣代码整理成了一个包）

@@ -12,9 +12,9 @@ from dataloader import load_data
 from opts import parse_opt
 
 
-cudnn.benchmark = True  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
+cudnn.benchmark = True  # set to true only if inputs to model are fixed size;
+                        # otherwise lot of computational overhead
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
 def train(config):
 
@@ -24,7 +24,10 @@ def train(config):
     model = OmniglotCNN(config.n_way)
 
     # optimizer of the outer loop
-    outer_optimizer = torch.optim.Adam(model.parameters(), lr = config.outer_lr)
+    outer_optimizer = torch.optim.Adam(
+        model.parameters(),
+        lr = config.outer_lr
+    )
     # loss function
     loss_function = nn.CrossEntropyLoss()
 

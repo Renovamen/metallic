@@ -6,17 +6,17 @@ import copy
 import torch
 
 '''
-Update the parameters of a module in-place, in a way that preserves 
+Update the parameters of a module in-place, in a way that preserves
 differentiability:
     [ param \gets param + update ] for param in param_list
 
 input params:
     module (nn.Module): The module to update.
-    update_list (list): A list of gradients for each parameter of the model. 
+    update_list (list): A list of gradients for each parameter of the model.
                         If None, will use the tensors in .update attributes.
 '''
 def update_module(module, update_list = None, memo = None):
-    
+
     # some submodules might share parameters, so we should avoid duplicate updates
     # see: https://github.com/learnables/learn2learn/issues/174
     if memo is None:
@@ -81,7 +81,7 @@ def clone_parameters(param_list):
 
 
 '''
-Creates a copy of a module, whose parameters/buffers/submodules are 
+Creates a copy of a module, whose parameters/buffers/submodules are
 created using PyTorch's torch.clone().
 
 This implies that the computational graph is kept, and you can compute
