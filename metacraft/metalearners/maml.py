@@ -2,8 +2,7 @@ import time
 import torch
 from torch import nn
 from torch.autograd import grad
-from metacraft.utils.module import update_module, clone_module
-
+from metacraft.utils import update_module, clone_module, TrackMetric
 
 def maml_inner_loop_update(model, inner_lr, grad_list):
     '''
@@ -182,10 +181,8 @@ class MAML(nn.Module):
 
         task_batch = zip(support_inputs, support_targets, query_inputs, query_targets)
 
-        # loss of the outer loop
-        outer_loss = torch.tensor(0.).to(self.device)
-        # accuracy
-        outer_accuracy = torch.tensor(0.).to(self.device)
+        # loss and accuracy on query set (outer loop)
+        outer_loss, outer_accuracy = 0., 0.
 
         for task_id, task_data in enumerate(task_batch):
             # input: (n_way × k_shot, channels, img_size, img_size)
@@ -209,7 +206,7 @@ class MAML(nn.Module):
             # find accuracy on query set
             query_accuracy = get_accuracy(query_output, query_target)
 
-            # compute gradients whem meta-training
+            # compute gradients when meta-training
             if meta_train == True:
                 query_loss.backward()
 
@@ -225,8 +222,8 @@ class MAML(nn.Module):
             self.outer_optimizer.step()
 
         # average the losses and accuracies
-        outer_loss.div_(num_tasks)
-        outer_accuracy.div_(num_tasks)
+        outer_loss /= num_tasks
+        outer_accuracy /= num_tasks
 
         return outer_loss, outer_accuracy
 
@@ -238,19 +235,28 @@ class MAML(nn.Module):
 
         self.module.train()
 
+        batch_time = TrackMetric()  # forward prop. + back prop. time
+        data_time = TrackMetric()  # data loading time per batch
+        outer_losses = TrackMetric()  # losses
+        outer_accuracies = TrackMetric()  # accuracies
+
         # set start time
         start = time.time()
 
         # training loop
         for batch_id, batch in enumerate(train_loader):
             # data loading time per batch
-            data_time = time.time() - start
+            data_time.update(time.time() - start)
 
             # perform outer loop and get loss and accuracy
             outer_loss, outer_accuracy = self.outer_loop(batch)
 
-            # forward prop. + back prop. time per batch
-            batch_time = time.time() - start
+            # track average outer loss and accuracy
+            outer_losses.update(outer_loss)
+            outer_accuracies.update(outer_accuracy)
+
+            # track average forward prop. + back prop. time per batch
+            batch_time.update(time.time() - start)
 
             # reset the start time
             start = time.time()
@@ -259,14 +265,14 @@ class MAML(nn.Module):
             if batch_id % print_freq == 0:
                 print(
                     'Epoch: [{0}][{1}/{2}]\t'
-                    'Batch Time {batch_time:.3f}\t'
-                    'Data Load Time {data_time:.3f}\t'
-                    'Loss {loss:.4f}\t'
-                    'Accuracy {acc:.3f}'.format(epoch, batch_id, num_batches,
-                                                batch_time = batch_time,
-                                                data_time = data_time,
-                                                loss = outer_loss,
-                                                acc = outer_accuracy)
+                    'Batch Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                    'Data Load Time {data_time.val:.3f} ({data_time.avg:.3f})\t'
+                    'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                    'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(epoch, batch_id, num_batches,
+                                                                    batch_time = batch_time,
+                                                                    data_time = data_time,
+                                                                    loss = outer_losses,
+                                                                    acc = outer_accuracies)
                 )
 
             if batch_id >= num_batches:
@@ -278,19 +284,24 @@ class MAML(nn.Module):
         Meta-validate an epoch.
         '''
 
+        batch_time = TrackMetric()  # forward prop. time
+        outer_losses = TrackMetric()  # losses
+        outer_accuracies = TrackMetric()  # accuracies
+
         # set start time
         start = time.time()
 
         # validation loop
         for batch_id, batch in enumerate(val_loader):
-            # data loading time per batch
-            data_time = time.time() - start
-
             # perform outer loop and get loss and accuracy
             outer_loss, outer_accuracy = self.outer_loop(batch, meta_train = False)
 
-            # forward prop. + back prop. time per batch
-            batch_time = time.time() - start
+            # track average outer loss and accuracy
+            outer_losses.update(outer_loss)
+            outer_accuracies.update(outer_accuracy)
+
+            # track average forward prop. time per batch
+            batch_time.update(time.time() - start)
 
             # reset the start time
             start = time.time()
@@ -299,15 +310,15 @@ class MAML(nn.Module):
             if batch_id % print_freq == 0:
                 print(
                     'Validation: [{0}][{1}/{2}]\t'
-                    'Batch Time {batch_time:.3f}\t'
-                    'Data Load Time {data_time:.3f}\t'
-                    'Loss {loss:.4f}\t'
-                    'Accuracy {acc:.3f}'.format(epoch, batch_id, num_batches,
-                                                batch_time = batch_time,
-                                                data_time = data_time,
-                                                loss = outer_loss,
-                                                acc = outer_accuracy)
+                    'Batch Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                    'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                    'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(epoch, batch_id, num_batches,
+                                                                    batch_time = batch_time,
+                                                                    loss = outer_losses,
+                                                                    acc = outer_accuracies)
                 )
 
             if batch_id >= num_batches:
                 break
+        
+        return outer_accuracies.avg
