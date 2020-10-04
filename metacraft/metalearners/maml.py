@@ -1,8 +1,7 @@
-import time
 import torch
-from torch import nn
 from torch.autograd import grad
-from metacraft.utils import update_module, clone_module, TrackMetric
+from metacraft.metalearners.base import BaseMetaLearner
+from metacraft.utils import update_module, clone_module, get_accuracy
 
 def maml_inner_loop_update(model, inner_lr, grad_list):
     '''
@@ -35,14 +34,7 @@ def maml_inner_loop_update(model, inner_lr, grad_list):
     return update_module(model)
 
 
-def get_accuracy(scores, labels):
-    _, predictions = scores.max(dim = 1)  # (n_samples)
-    correct_predictions = torch.eq(predictions, labels).sum().float()
-    accuracy = correct_predictions / labels.size(0)
-    return accuracy
-
-
-class MAML(nn.Module):
+class MAML(BaseMetaLearner):
     '''
     An implementation of MAML (Model-Agnostic Meta-Learning):
 
@@ -78,15 +70,13 @@ class MAML(nn.Module):
     def __init__(self, model, outer_optimizer, loss_function, inner_lr,
                  inner_steps = 1, first_order = False, device = None):
 
-        super(MAML, self).__init__()
+        super(MAML, self).__init__(model, device)
 
-        self.module = model
         self.outer_optimizer = outer_optimizer
         self.loss_function = loss_function
         self.inner_lr = inner_lr
         self.inner_steps = inner_steps
         self.first_order = first_order
-        self.device = device
 
 
     def clone(self):
@@ -221,101 +211,3 @@ class MAML(nn.Module):
         outer_accuracy /= num_tasks
 
         return outer_loss, outer_accuracy
-
-
-    def train(self, epoch, train_loader, num_batches = 500, print_freq = 1):
-        '''
-        Meta-train an epoch.
-        '''
-
-        self.module.train()
-
-        batch_time = TrackMetric()  # forward prop. + back prop. time
-        data_time = TrackMetric()  # data loading time per batch
-        outer_losses = TrackMetric()  # losses
-        outer_accuracies = TrackMetric()  # accuracies
-
-        # set start time
-        start = time.time()
-
-        # training loop
-        for batch_id, batch in enumerate(train_loader):
-            # data loading time per batch
-            data_time.update(time.time() - start)
-
-            # perform outer loop and get loss and accuracy
-            outer_loss, outer_accuracy = self.outer_loop(batch)
-
-            # track average outer loss and accuracy
-            outer_losses.update(outer_loss)
-            outer_accuracies.update(outer_accuracy)
-
-            # track average forward prop. + back prop. time per batch
-            batch_time.update(time.time() - start)
-
-            # reset the start time
-            start = time.time()
-
-            # print training status
-            if batch_id % print_freq == 0:
-                print(
-                    'Epoch: [{0}][{1}/{2}]\t'
-                    'Batch Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                    'Data Load Time {data_time.val:.3f} ({data_time.avg:.3f})\t'
-                    'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                    'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(epoch, batch_id, num_batches,
-                                                                    batch_time = batch_time,
-                                                                    data_time = data_time,
-                                                                    loss = outer_losses,
-                                                                    acc = outer_accuracies)
-                )
-
-            if batch_id >= num_batches:
-                break
-
-
-    def validate(self, epoch, val_loader, num_batches = 500, print_freq = 1):
-        '''
-        Meta-validate an epoch.
-        '''
-
-        self.module.eval()
-
-        batch_time = TrackMetric()  # forward prop. time
-        outer_losses = TrackMetric()  # losses
-        outer_accuracies = TrackMetric()  # accuracies
-
-        # set start time
-        start = time.time()
-
-        # validation loop
-        for batch_id, batch in enumerate(val_loader):
-            # perform outer loop and get loss and accuracy
-            outer_loss, outer_accuracy = self.outer_loop(batch, meta_train = False)
-
-            # track average outer loss and accuracy
-            outer_losses.update(outer_loss)
-            outer_accuracies.update(outer_accuracy)
-
-            # track average forward prop. time per batch
-            batch_time.update(time.time() - start)
-
-            # reset the start time
-            start = time.time()
-
-            # print training status
-            if batch_id % print_freq == 0:
-                print(
-                    'Validation: [{0}][{1}/{2}]\t'
-                    'Batch Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                    'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                    'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(epoch, batch_id, num_batches,
-                                                                    batch_time = batch_time,
-                                                                    loss = outer_losses,
-                                                                    acc = outer_accuracies)
-                )
-
-            if batch_id >= num_batches:
-                break
-        
-        return outer_accuracies.avg

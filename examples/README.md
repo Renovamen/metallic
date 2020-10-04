@@ -6,7 +6,11 @@ Now it includes:
 
 - MAML (`maml`) and FOMAML (`fomaml`)
 
-    **Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks.** *Chelsea Finn, et al.* ICML 2017. [Paper](https://arxiv.org/pdf/1703.03400.pdf) [Code](https://github.com/cbfinn/maml)
+    **Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks.** *Chelsea Finn, et al.* ICML 2017. [[Paper]](https://arxiv.org/pdf/1703.03400.pdf) [[Official Code]](https://github.com/cbfinn/maml)
+
+- Reptile (`reptile`)
+
+    **On First-Order Meta-Learning Algorithms.** *Alex Nichol, et al.* arXiv 2018. [[Paper]](https://arxiv.org/pdf/1803.02999.pdf) [[Official Code]]( https://github.com/openai/supervised-reptile)
 
 
 &nbsp;
@@ -15,7 +19,6 @@ Now it includes:
 
 First, edit the configuration files under [`configs`](configs) folder manually.
 
-&nbsp;
 
 ### Train
 
@@ -25,7 +28,6 @@ python examples/train.py --config configs/example.yaml
 
 where `configs/example.yaml` is the path to your configuration file.
 
-&nbsp;
 
 ### Test
 

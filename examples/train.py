@@ -1,45 +1,26 @@
-import sys
-
-sys.path.insert(0, '/Users/zou/Desktop/metacraft')
-
 import os
 import torch
-from torch import nn
 import torch.backends.cudnn as cudnn
-
-from metacraft.models import OmniglotCNN, MLP
-from metacraft.metalearners import MAML
-
-from utils.metalearner import set_metalearner
-from utils.dataloader import load_data
-from utils.opts import parse_opt
-
+from utils import load_data, set_model, set_metalearner, parse_opt
 
 cudnn.benchmark = True  # set to true only if inputs to model are fixed size;
                         # otherwise lot of computational overhead
+
 
 def train(config):
 
     train_loader, val_loader, _ = load_data(config)
 
     # set model
-    model = OmniglotCNN(config.n_way)
-
-    # optimizer of the outer loop
-    outer_optimizer = torch.optim.Adam(
-        model.parameters(),
-        lr = config.outer_lr
-    )
-
-    # loss function
-    loss_function = nn.CrossEntropyLoss()
+    model, loss_function, inner_optimizer, outer_optimizer = set_model(config)
 
     # get meta-learner
-    metalearner = set_metalearner(config, model, outer_optimizer, loss_function)
+    metalearner = set_metalearner(config, model, loss_function,
+                                  inner_optimizer, outer_optimizer)
 
     best_acc = 0.
 
-    for epoch in range(config.num_epoches):
+    for epoch in range(config.num_epoches - 1):
         # meta-train an epoch
         metalearner.train(epoch, train_loader, config.num_batches, config.print_freq)
 
@@ -56,8 +37,9 @@ def train(config):
             checkpoint_path = os.path.join(config.checkpoint_path, checkpoint_name)
             state = {
                 'model': model,
+                'inner_optimizer': inner_optimizer,
                 'outer_optimizer': outer_optimizer,
-                'metalearner': 'maml',
+                'metalearner': config.metalearner,
                 'dataset': config.dataset,
             }
             torch.save(state, checkpoint_path)

@@ -1,9 +1,7 @@
 import os
 import torch
 from torch import nn
-from utils.metalearner import set_metalearner
-from utils.dataloader import load_data
-from utils.opts import parse_opt
+from utils import load_data, set_metalearner, parse_opt
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -17,10 +15,10 @@ def test(config):
 
     # load checkpoint
     checkpoint = torch.load(checkpoint_path, map_location = str(device))
-    
     # get model
     model = checkpoint['model']
-    
+    # get inner loop optimizer
+    inner_optimizer = checkpoint['inner_optimizer']
     # get outer loop optimizer
     outer_optimizer = checkpoint['outer_optimizer']
 
@@ -28,11 +26,12 @@ def test(config):
     loss_function = nn.CrossEntropyLoss()
 
     # get meta-learner
-    metalearner = set_metalearner(config, model, outer_optimizer, loss_function)
+    metalearner = set_metalearner(config, model, loss_function,
+                                  inner_optimizer, outer_optimizer)
 
     avg_acc = metalearner.validate(0, test_loader, config.num_batches, config.print_freq)
 
-    print('\n * TEST ACCURACY - %.1f percent\n' % (avg_acc * 100))
+    print('\n * TEST ACCURACY - %.1f%%\n' % (avg_acc * 100))
 
 
 if __name__ == '__main__':
