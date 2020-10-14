@@ -45,15 +45,12 @@ class MAML(BaseMetaLearner):
     For FOMAML (First-Order Model-Agnostic Meta-Learning) mentioned in the
     above mentioned paper, just set `first_order = True`.
 
-    attributes:
+    input params:
         model (nn.Module):
             Module to be wrapped.
 
         outer_optimizer (torch.optim.Optimizer):
             Optimizer for the outer loop.
-
-        loss_function (callable):
-            The loss function for both the inner and outer loop.
 
         inner_lr (float):
             Fast adaptation learning rate.
@@ -67,13 +64,12 @@ class MAML(BaseMetaLearner):
         device (torch.device, optional, default = None):
             The device on which the model is defined.
     '''
-    def __init__(self, model, outer_optimizer, loss_function, inner_lr,
-                 inner_steps = 1, first_order = False, device = None):
+    def __init__(self, model, outer_optimizer, inner_lr, inner_steps = 1,
+                 first_order = False, device = None):
 
         super(MAML, self).__init__(model, device)
 
         self.outer_optimizer = outer_optimizer
-        self.loss_function = loss_function
         self.inner_lr = inner_lr
         self.inner_steps = inner_steps
         self.first_order = first_order

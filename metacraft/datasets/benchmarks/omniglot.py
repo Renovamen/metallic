@@ -14,7 +14,7 @@ class Omniglot(MetaDataset):
     '''
     The Omniglot dataset. 
 
-    attributes:
+    input params:
         root (string):
             Root directory where the dataset folder `omniglot` exists.
         

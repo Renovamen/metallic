@@ -19,7 +19,7 @@ class OmniglotCNN(nn.Module):
         1. "Matching Networks for One Shot Learning." Oriol Vinyals, et al. NIPS 2016.
         2. "Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks." Chelsea Finn, et al. ICML 2017.
 
-    attributes:
+    input params:
         n_classes (int):
             The size of the network's output. This corresponds to "N" in 
             "N-way" classification.
@@ -79,7 +79,7 @@ class MiniImagenetCNN(nn.Module):
         1. "Optimization as a Model for Few-Shot Learning." Sachin Ravi, et al. ICLR 2017.
         2. "Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks." Chelsea Finn, et al. ICML 2017.
 
-    attributes:
+    input params:
         n_classes (int):
             The size of the network's output. This corresponds to "N" in 
             "N-way" classification.

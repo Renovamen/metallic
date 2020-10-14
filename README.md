@@ -1,6 +1,10 @@
-# Metacraft
+<h1 align="center">Metacraft</h1>
 
-**English** | [简体中文](README-CN.md) | [Documentation](https://metacraft.renovamen.ink)
+<p align="center">
+    <b>English</b> |
+    <a href="README-CN.md">简体中文</a> |
+    <a href="https://metacraft.renovamen.ink" target="_blank">Documentation</a>
+</p>
 
 
 Metacraft is a simple toolbox for my meta-learning research based on [PyTorch](https://github.com/pytorch/pytorch).

@@ -43,26 +43,29 @@ def load_data(config):
             dataset_transform = dataset_transform,
             class_augmentations = class_augmentations
         )
+
+    else:
+        raise NotImplementedError("Dataset not implemented.")
         
-        train_loader = BatchMetaDataLoader(
-            dataset = train_dataset,
-            batch_size = config.batch_size,
-            shuffle = True,
-            num_workers = config.num_workers
-        )
+    train_loader = BatchMetaDataLoader(
+        dataset = train_dataset,
+        batch_size = config.batch_size,
+        shuffle = True,
+        num_workers = config.num_workers
+    )
 
-        val_loader = BatchMetaDataLoader(
-            dataset = val_dataset,
-            batch_size = config.batch_size,
-            shuffle = True,
-            num_workers = config.num_workers
-        )
+    val_loader = BatchMetaDataLoader(
+        dataset = val_dataset,
+        batch_size = config.batch_size,
+        shuffle = True,
+        num_workers = config.num_workers
+    )
 
-        test_loader = BatchMetaDataLoader(
-            dataset = test_dataset,
-            batch_size = config.batch_size,
-            shuffle = True,
-            num_workers = config.num_workers
-        )
+    test_loader = BatchMetaDataLoader(
+        dataset = test_dataset,
+        batch_size = config.batch_size,
+        shuffle = True,
+        num_workers = config.num_workers
+    )
 
     return train_loader, val_loader, test_loader

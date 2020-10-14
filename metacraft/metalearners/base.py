@@ -1,4 +1,5 @@
 import time
+from torch import nn
 from metacraft.utils import TrackMetric
 
 
@@ -8,9 +9,10 @@ class BaseMetaLearner(object):
 
         super(BaseMetaLearner, self).__init__()
 
-        self.module = model
         self.device = device
-
+        self.module = model.to(device)
+        self.loss_function = nn.CrossEntropyLoss().to(device)
+        
 
     def outer_loop(self):
         raise NotImplementedError()

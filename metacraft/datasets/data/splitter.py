@@ -13,7 +13,7 @@ class MetaSplitter(object):
     This is a dataset transformation to be applied as a `dataset_transform`
     in a `MetaDataset`.
 
-    attributes:
+    input params:
         shuffle (bool, default = True):
             Shuffle the data in the dataset before the split.
 

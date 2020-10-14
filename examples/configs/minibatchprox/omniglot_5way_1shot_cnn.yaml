@@ -1,4 +1,4 @@
-metalearner: 'reptile'
+metalearner: 'minibatchprox'
 model: 'omniglotcnn'
 
 # dataset parameters
@@ -7,11 +7,12 @@ dataset_path: /Users/zou/Desktop/metacraft/data/omniglot  # folder with dataset
 
 # training parameters
 n_way: 5  # number of classes per task
-k_shot: 5  # number of samples per class in the support (and query)  set
-batch_size: 16  # batch size
+k_shot: 1  # number of samples per class in the support (and query)  set
+batch_size: 5  # batch size
 outer_lr: 1.0  # learning rate of the outer loop
 inner_lr: 0.001  # learning rate of the inner loop
-inner_steps: 8  # how many inner gradient steps we should perform
+inner_steps: 5  # how many inner gradient steps we should perform
+reg_lambda: 0.1  # l2 regularization weight
 num_workers: 4  # number of workers for loading data in the DataLoader
 print_freq: 1  # print training status every __ batches
 num_epoches: 1  # number of training epoches
@@ -19,4 +20,4 @@ num_batches: 100000  # number of batches the model is trained over
 
 # checkpoint saving parameters
 checkpoint_path: /Users/zou/Desktop/metacraft/checkpoints  # path to save checkpoints, null if never save checkpoints
-checkpoint_basename: reptile_omniglot_cnn  # basename of the checkpoint
+checkpoint_basename: minibatchprox_omniglot_cnn  # basename of the checkpoint

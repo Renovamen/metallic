@@ -17,7 +17,7 @@ class Dataset(TorchDataset):
     │         │         │
     sample1   sample2   ...
 
-    attributes:
+    input params:
         index (int): index of this class
     '''
 
@@ -45,7 +45,7 @@ class Task(Dataset):
     '''
     Base class for a classification task.
 
-    attributes:
+    input params:
         n_classes (int):
             Number of classes for the classification task.
     '''
@@ -65,7 +65,7 @@ class ConcatTask(Task, ConcatDataset):
     │        │        │        │        │
     c1_s1    c1_s2    ...      c2_s1    ...
 
-    attributes:
+    input params:
         datasets (list[class1, class2, ...]): 
             A list of classes (Dataset) to be concatenated into a task.
         
@@ -118,7 +118,7 @@ class ClassDataset(object):
     │         │         │
     sample1   sample2   ...
 
-    attributes:
+    input params:
         meta_split (str):
             'train' / 'val' / 'test', name of the split to use.
         
@@ -190,7 +190,7 @@ class MetaDataset(object):
     '''
     Base class for a meta-dataset.
 
-    attributes:
+    input params:
         dataset (ClassDataset):
             Each item of it is a dataset containing all the examples 
             from the same class.

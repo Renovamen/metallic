@@ -3,13 +3,13 @@ import torch
 from metacraft.metalearners.base import BaseMetaLearner
 from metacraft.utils import get_accuracy
 
-class Reptile(BaseMetaLearner):
+class MinibatchProx(BaseMetaLearner):
     '''
-    An implementation of Reptile, a first-order meta-learning algorithm:
+    An implementation of MinibatchProx:
 
-    On First-Order Meta-Learning Algorithms. Alex Nichol, et al. arXiv 2018.
-    Paper: https://arxiv.org/pdf/1803.02999.pdf
-    Official implementation: https://github.com/openai/supervised-reptile
+    Efficient Meta Learning via Minibatch Proximal Update. Pan Zhou, et al. NIPS 2019.
+    Paper: https://panzhous.github.io/assets/pdf/2019-NIPS-metaleanring.pdf
+    Official implementation: https://panzhous.github.io/assets/code/MetaMinibatchProx.zip
 
     input params:
         model (nn.Module):
@@ -20,7 +20,7 @@ class Reptile(BaseMetaLearner):
 
         outer_optimizer (torch.optim.Optimizer):
             Optimizer for the outer loop.
-        
+
         inner_lr (float):
             Fast adaptation learning rate.
 
@@ -32,9 +32,9 @@ class Reptile(BaseMetaLearner):
     '''
 
     def __init__(self, model, inner_optimizer, outer_optimizer, inner_lr,
-                 inner_steps = 1, device = None):
+                 inner_steps = 1, reg_lambda = 0.1, device = None):
 
-        super(Reptile, self).__init__(model, device)
+        super(MinibatchProx, self).__init__(model, device)
 
         self.inner_lr = inner_lr
         self.inner_steps = inner_steps
@@ -44,8 +44,26 @@ class Reptile(BaseMetaLearner):
         self.inner_optimizer_type = inner_optimizer.__class__
         self.inner_optimizer_state = self.inner_optimizer.state_dict()
 
+        self.reg_lambda = reg_lambda
 
-    def inner_loop(self, copied_module, support_input, support_target):
+
+    '''
+    Compute regularized cross-entropy loss using params before and after
+    inner loop update: L(params) + \labmbda/2 * ||params - init_params||^2
+    
+    input params:
+        output (torch.Tensor): Output results of the model.
+        target (torch.Tensor): Ground truth.
+        init_params (list): List of meta-initial parameters (before inner update).
+        params (list): List of task-specific parameters (after inner update).
+    '''
+    def reg_loss_function(self, output, target, init_params, params):
+        sq_diff = sum([((init_param - param) ** 2).sum() for init_param, param in zip(init_params, params)])
+        reg_term = 0.5 * self.reg_lambda * sq_diff
+        return self.loss_function(output, target) + reg_term
+
+
+    def inner_loop(self, copied_module, support_input, support_target, init_params):
         '''
         Update the (copied) parameters in the inner loop (adapt stage).
         '''
@@ -55,9 +73,14 @@ class Reptile(BaseMetaLearner):
             # clear gradients
             self.inner_optimizer.zero_grad()
             
-            # compute loss on support set
             support_output = copied_module(support_input)
-            support_loss = self.loss_function(support_output, support_target)
+            
+            # get task specific parameters
+            params = list(copied_module.parameters())
+
+            # compute regularized loss on support set
+            support_loss = self.reg_loss_function(support_output, support_target,
+                                                  init_params, params)
             
             # back propagation and update (copied) parameters
             support_loss.backward()
@@ -119,11 +142,15 @@ class Reptile(BaseMetaLearner):
             )
             self.inner_optimizer.load_state_dict(self.inner_optimizer_state)
 
+            # a backup copy of meta-init parameters
+            init_params = [p.detach().clone().requires_grad_(True) for p in copied_module.parameters()]
+
             # inner loop (adapt)
             copied_module = self.inner_loop(
                 copied_module = copied_module,
                 support_input = support_input,
-                support_target = support_target
+                support_target = support_target,
+                init_params = init_params
             )
 
             # evaluate on the query set
@@ -149,7 +176,7 @@ class Reptile(BaseMetaLearner):
             # (1\n) * \sum_i (\theta_i - \theta)
             for param in self.module.parameters():
                 param.grad.data.div_(num_tasks)
-            # Reptile: \theta ← \theta + outer_lr * (1\n) * \sum_i (\theta_i - \theta)
+            # Reptile: \theta ← \theta + outer_lr * \lambda * (1\n) * \sum_i (\theta_i - \theta)
             self.outer_optimizer.step()
 
         # average the losses and accuracies

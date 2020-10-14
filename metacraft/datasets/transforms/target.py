@@ -5,7 +5,7 @@ class EncodeTarget(object):
     '''
     Given samples from `n_classes` classes, maps the labels to `[0, n_classes)`.
 
-    attributes:
+    input params:
         n_classes (int): Number of classes.
     '''
     
@@ -45,7 +45,7 @@ class FixTargetTransform(object):
     Record the target with its corresponding transform function.
     Only make sense for segmention tasks.
 
-    attributes:
+    input params:
         transform (callable):
             A function/transform that takes a `PIL` image, and returns a 
             transformed version. See also `torchvision.transforms`.

@@ -1,24 +1,16 @@
 import torch
 from torch import nn
-from metacraft.metalearners import MAML, FOMAML, Reptile
+from metacraft.metalearners import MAML, FOMAML, Reptile, MinibatchProx
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def set_metalearner(config, model, loss_function, inner_optimizer, outer_optimizer):
-
-    # loss function
-    loss_function = nn.CrossEntropyLoss()
-
-    # move to device
-    model = model.to(device)
-    loss_function = loss_function.to(device)
+def set_metalearner(config, model, inner_optimizer, outer_optimizer):
 
     # set meta-learner
     if config.metalearner == 'maml':
         metalearner = MAML(
             model = model,
             outer_optimizer = outer_optimizer,
-            loss_function = loss_function,
             inner_lr = config.inner_lr,
             inner_steps = config.inner_steps,
             first_order = False,
@@ -28,7 +20,6 @@ def set_metalearner(config, model, loss_function, inner_optimizer, outer_optimiz
         metalearner = FOMAML(
             model = model,
             outer_optimizer = outer_optimizer,
-            loss_function = loss_function,
             inner_lr = config.inner_lr,
             inner_steps = config.inner_steps,
             device = device
@@ -38,10 +29,21 @@ def set_metalearner(config, model, loss_function, inner_optimizer, outer_optimiz
             model = model,
             inner_optimizer = inner_optimizer,
             outer_optimizer = outer_optimizer,
-            loss_function = loss_function,
             inner_lr = config.inner_lr,
             inner_steps = config.inner_steps,
             device = device
         )
+    elif config.metalearner == 'minibatchprox':
+        metalearner = MinibatchProx(
+            model = model,
+            inner_optimizer = inner_optimizer,
+            outer_optimizer = outer_optimizer,
+            inner_lr = config.inner_lr,
+            inner_steps = config.inner_steps,
+            reg_lambda = config.reg_lambda,
+            device = device
+        )
+    else:
+        raise NotImplementedError("Meta-learner not implemented.")
     
     return metalearner

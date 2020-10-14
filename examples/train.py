@@ -12,15 +12,14 @@ def train(config):
     train_loader, val_loader, _ = load_data(config)
 
     # set model
-    model, loss_function, inner_optimizer, outer_optimizer = set_model(config)
+    model, inner_optimizer, outer_optimizer = set_model(config)
 
     # get meta-learner
-    metalearner = set_metalearner(config, model, loss_function,
-                                  inner_optimizer, outer_optimizer)
+    metalearner = set_metalearner(config, model, inner_optimizer, outer_optimizer)
 
     best_acc = 0.
-
-    for epoch in range(config.num_epoches - 1):
+    
+    for epoch in range(config.num_epoches):
         # meta-train an epoch
         metalearner.train(epoch, train_loader, config.num_batches, config.print_freq)
 

@@ -16,7 +16,7 @@ class MLP(nn.Module):
         1. "Meta-Learning with Memory-Augmented Neural Networks." Adam Santoro, et al. ICML 2016.
         2. "Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks." Chelsea Finn, et al. ICML 2017.
 
-    attributes:
+    input params:
         n_classes (int):
             The size of the network's output. This corresponds to "N" in 
             "N-way" classification.
