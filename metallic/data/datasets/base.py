@@ -10,16 +10,14 @@ from torch.utils.data import ConcatDataset, Subset
 
 class Dataset(TorchDataset):
     """
-    **Description**
-
     A dataset containing all of the samples from a given class:
 
-    ~~~
-    Dataset (a class)
-    ├─────────┬─────────┐
-    │         │         │
-    sample1   sample2   ...
-    ~~~
+    .. code-block::
+
+        Dataset (a class)
+        ├─────────┬─────────┐
+        │         │         │
+        sample1   sample2   ...
     """
 
     def __init__(
@@ -51,20 +49,18 @@ class Dataset(TorchDataset):
 
 class ClassDataset:
     """
-    **Description**
+    Base class for a dataset composed of classes. Each item from a ``ClassDataset``
+    is a ``Dataset`` containing samples from the given class:
 
-    Base class for a dataset composed of classes. Each item from a `ClassDataset`
-    is a `Dataset` containing samples from the given class:
+    .. code-block::
 
-    ~~~
-    ClassDataset
-    ├───────────────┬──────────────┐
-    │               │              │
-    class1          class2         ... (`Dataset`)
-    ├─────────┬─────────┐
-    │         │         │
-    sample1   sample2   ...
-    ~~~
+        ClassDataset
+        ├───────────────┬──────────────┐
+        │               │              │
+        class1          class2         ... (`Dataset`)
+        ├─────────┬─────────┐
+        │         │         │
+        sample1   sample2   ...
     """
 
     def __init__(
@@ -148,12 +144,12 @@ class TaskDataset(ConcatDataset):
     """
     A dataset for concatenating the given multiple classes, which means:
 
-    ~~~
-    TaskDataset
-    ├────────┬────────┬────────┬────────┐
-    │        │        │        │        │
-    c1_s1    c1_s2    ...      c2_s1    ...
-    ~~~
+    .. code-block::
+
+        TaskDataset
+        ├────────┬────────┬────────┬────────┐
+        │        │        │        │        │
+        c1_s1    c1_s2    ...      c2_s1    ...
     """
     def __init__(self, datasets: Dataset, n_classes: int) -> None:
         super(TaskDataset, self).__init__(datasets)
@@ -165,7 +161,7 @@ class TaskDataset(ConcatDataset):
 
 class SubTaskDataset(Subset):
     """
-    Subset of a TaskDataset at specified indices.
+    Subset of a ``TaskDataset`` at specified indices.
     """
     def __init__(
         self, dataset: Dataset, indices: List[int], n_classes: int = None
@@ -207,8 +203,8 @@ class MetaDataset(TorchDataset):
 
     def split_task(self, task: TaskDataset) -> OrderedDict:
         """
-        Split a TaskDataset into support / query set, each of ther set
-        contains `k_shot_suppor` / `k_shot_query` samples per class.
+        Split a ``TaskDataset`` into support / query set, each of ther set
+        contains ``k_shot_suppor`` / ``k_shot_query`` samples per class.
         """
         indices = OrderedDict([(split, []) for split in self.task_splits])
         cumulative_size = 0
@@ -249,10 +245,10 @@ class MetaDataset(TorchDataset):
 
     def __getitem__(self, indices: tuple) -> TaskDataset:
         """
-        Generate a task composed with the given `n_way` classes.
+        Generate a task composed with the given ``n_way`` classes.
 
         Args:
-            indices (tuple): The `n_way` indices of the classes to be
+            indices (tuple): The ``n_way`` indices of the classes to be
                 sampled in the task.
         """
         # make sure the number of classes is equal to n_way
@@ -273,14 +269,14 @@ class MetaDataset(TorchDataset):
 
     def __iter__(self) -> Iterator:
         """
-        Iterate all possible tasks composed of `n_way` classes.
+        Iterate all possible tasks composed of ``n_way`` classes.
         """
         for index in combinations(range(self.n_classes), self.n_way):
             yield self[index]
 
     def __len__(self) -> int:
         """
-        Number of all possible tasks composed of `n_way` classes.
+        Number of all possible tasks composed of ``n_way`` classes.
         """
         length = 1
         # combination formula
