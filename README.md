@@ -28,7 +28,7 @@ pip install git+https://github.com/Renovamen/metallic.git --upgrade
 
 ## Documentations
 
-Coming soon.
+Check the API documentation here: [metallic-docs.vercel.app](https://metallic-docs.vercel.app)
 
 
 &nbsp;

@@ -1,2 +1,5 @@
-recommonmark
-sphinx-rtd-theme
+recommonmark==0.7.1
+sphinx-rtd-theme==0.5.1
+numpy==1.19.1
+torch==1.6.0
+torchvision==0.7.0

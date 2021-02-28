@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from metallic.models.base import LinearBlock
+from .base import LinearBlock
 
 class MLP(nn.Module):
     """

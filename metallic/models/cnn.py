@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from metallic.models.base import ConvGroup
+from .base import ConvGroup
 
 class OmniglotCNN(nn.Module):
     """
