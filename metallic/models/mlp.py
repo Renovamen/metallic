@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from .base import LinearBlock
 
-class MLP(nn.Module):
+class OmniglotMLP(nn.Module):
     """
     The fully-connected network used for experiments on Omniglot, firstly
     introduced by [1], also used by [2].
@@ -18,12 +18,12 @@ class MLP(nn.Module):
 
     References
     ----------
-    1. "Meta-Learning with Memory-Augmented Neural Networks." Adam Santoro, et al. ICML 2016.
-    2. "Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks." Chelsea Finn, et al. ICML 2017.
+    1. "`Meta-Learning with Memory-Augmented Neural Networks. <http://proceedings.mlr.press/v48/santoro16.pdf>`_" Adam Santoro, et al. ICML 2016.
+    2. "`Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks. <https://arxiv.org/abs/1703.03400>`_" Chelsea Finn, et al. ICML 2017.
     """
 
     def __init__(self, input_size: int, n_classes: int):
-        super(MLP, self).__init__()
+        super(OmniglotMLP, self).__init__()
 
         linear_sizes = [input_size, 256, 128, 64, 64]
 
@@ -38,7 +38,7 @@ class MLP(nn.Module):
         self.classifier.weight.data.normal_()
         self.classifier.bias.data.mul_(0.0)
 
-    def forward(self, x: torch.tensor):
+    def forward(self, x: torch.Tensor):
         x = x.view(x.size(0), -1)
         features = self.features(x)
         scores = self.classifier(features)

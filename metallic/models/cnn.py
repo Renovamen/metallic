@@ -14,8 +14,8 @@ class OmniglotCNN(nn.Module):
     channel. Namely, the shapes of inputs are (1, 28, 28).
 
     Args:
-        n_classes (int): Size of the network's output. This corresponds
-            to "N" in "N-way" classification.
+        n_classes (int): Size of the network's output. This corresponds to
+            ``N`` in ``N-way`` classification.
 
     NOTE:
         There is **NO** max-pooling in this network.
@@ -23,8 +23,8 @@ class OmniglotCNN(nn.Module):
 
     References
     ---------
-    1. "Matching Networks for One Shot Learning." Oriol Vinyals, et al. NIPS 2016.
-    2. "Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks." Chelsea Finn, et al. ICML 2017.
+    1. "`Matching Networks for One Shot Learning. <https://arxiv.org/abs/1606.04080>`_" Oriol Vinyals, et al. NIPS 2016.
+    2. "`Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks. <https://arxiv.org/abs/1703.03400>`_" Chelsea Finn, et al. ICML 2017.
     """
 
     def __init__(self, n_classes: int):
@@ -44,10 +44,10 @@ class OmniglotCNN(nn.Module):
         self.classifier.weight.data.normal_()
         self.classifier.bias.data.mul_(0.0)
 
-    def forward(self, x: torch.tensor):
+    def forward(self, x: torch.Tensor):
         """
         Args:
-            x (torch.tensor): input data (batch_size, in_channels = 1,
+            x (torch.Tensor): input data (batch_size, in_channels = 1,
                 img_size = 28, img_size = 28)
 
         Returns:
@@ -77,8 +77,8 @@ class MiniImagenetCNN(nn.Module):
 
     References
     ----------
-    1. "Optimization as a Model for Few-Shot Learning." Sachin Ravi, et al. ICLR 2017.
-    2. "Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks." Chelsea Finn, et al. ICML 2017.
+    1. "`Optimization as a Model for Few-Shot Learning. <https://openreview.net/pdf?id=rJY0-Kcll>`_" Sachin Ravi, et al. ICLR 2017.
+    2. "`Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks. <https://arxiv.org/abs/1703.03400>`_" Chelsea Finn, et al. ICML 2017.
     """
 
     def __init__(self, n_classes: int):
@@ -100,7 +100,7 @@ class MiniImagenetCNN(nn.Module):
     def forward(self, x):
         """
         Args:
-            x (torch.tensor): input data (batch_size, in_channels = 3,
+            x (torch.Tensor): input data (batch_size, in_channels = 3,
                 img_size = 84, img_size = 84)
 
         Returns:

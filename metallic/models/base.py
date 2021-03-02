@@ -61,7 +61,7 @@ class ConvBlock(nn.Module):
         # batch normalization layer
         nn.init.uniform_(self.core[1].weight)
 
-    def forward(self, x: torch.tensor):
+    def forward(self, x: torch.Tensor):
         output = self.core(x)
         return output
 
@@ -124,7 +124,7 @@ class ConvGroup(nn.Module):
 
         self.core = nn.Sequential(*module_list)
 
-    def forward(self, x: torch.tensor):
+    def forward(self, x: torch.Tensor):
         output = self.core(x)
         return output
 
@@ -152,6 +152,6 @@ class LinearBlock(nn.Module):
         nn.init.xavier_uniform_(self.core[0].weight)
         nn.init.constant_(self.core[0].bias.data, 0.0)
 
-    def foward(self, x: torch.tensor):
+    def foward(self, x: torch.Tensor):
         output = self.core(x)
         return output

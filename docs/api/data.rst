@@ -1,15 +1,7 @@
 metallic.data
 =====================
 
-metallic.data.datasets
--------------------------------
-
-.. toctree::
-
-   metallic.data.datasets
-
-
-metallic.data.dataloader
+Dataloaders
 -------------------------------
 
 .. automodule:: metallic.data.dataloader
@@ -17,7 +9,8 @@ metallic.data.dataloader
    :undoc-members:
    :show-inheritance:
 
-metallic.data.sampler
+
+Samplers
 ----------------------------
 
 .. automodule:: metallic.data.sampler
