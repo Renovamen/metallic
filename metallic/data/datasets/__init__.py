@@ -1,2 +1,3 @@
 from .base import *
-from .omniglot import OmniglotClassDataset, Omniglot
+from .omniglot import *
+from .miniimagenet import *

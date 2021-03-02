@@ -1,7 +1,7 @@
 import os
 import sys
 from collections import OrderedDict, defaultdict
-from typing import Optional, Callable, Iterator, List
+from typing import Optional, Callable, Iterator, List, Tuple, Any
 from itertools import combinations
 import numpy as np
 import torch
@@ -35,7 +35,7 @@ class Dataset(TorchDataset):
     def __len__(self) -> int:
         return len(self.data)
 
-    def __getitem__(self, index) -> tuple:
+    def __getitem__(self, index) -> Tuple[Any, Any]:
         image, target = self.data[index], self.class_label
 
         if self.transform is not None:
@@ -83,14 +83,15 @@ class ClassDataset:
         self._prepro_cache = os.path.join(self.root, cache_path)
 
     def __len__(self) -> int:
-        return len(self.dataset)
+        return self.n_classes
 
     def preprocess(self) -> None:
         if self._check_cache():
             self.load_cache()
         else:
             self.create_cache()
-        self.n_classes = len(self.labels)
+            # self.save_cache()
+        self.n_classes = len(self.labels[self.meta_split])
 
     def _check_cache(self) -> bool:
         """
@@ -113,6 +114,7 @@ class ClassDataset:
         for (image, label) in self.dataset:
             self.label_to_images[label].append(image)
 
+    def save_cache(self) -> None:
         state = {
             'label_to_images': self.label_to_images,
             'labels': self.labels

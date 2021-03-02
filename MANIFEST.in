@@ -1,1 +1,1 @@
-recursive-include metallic/datasets/splits *
+recursive-include metallic/datasets/assets *

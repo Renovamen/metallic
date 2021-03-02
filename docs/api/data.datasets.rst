@@ -38,5 +38,16 @@ Omniglot
 
 .. autoclass:: Omniglot
    :members:
-   :undoc-members:
-   :show-inheritance:
+
+.. autoclass:: OmniglotClassDataset
+   :members:
+
+
+mini-ImageNet
+---------------------------
+
+.. autoclass:: MiniImagenet
+   :members:
+
+.. autoclass:: MiniImagenetClassDataset
+   :members:
