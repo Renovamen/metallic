@@ -4,9 +4,11 @@ from collections import OrderedDict, defaultdict
 from typing import Optional, Callable, Iterator, List, Tuple, Any
 from itertools import combinations
 import numpy as np
+
 import torch
 from torch.utils.data import Dataset as TorchDataset
 from torch.utils.data import ConcatDataset, Subset
+from torchvision.transforms import Compose
 
 class Dataset(TorchDataset):
     """
@@ -18,10 +20,24 @@ class Dataset(TorchDataset):
         ├─────────┬─────────┐
         │         │         │
         sample1   sample2   ...
+
+    Args:
+        index (str): Index of the class
+        data (list): A list of samples in the class
+        class_label (int): Label of the class
+        transform (callable, optional): A function/transform that takes in
+            an PIL image and returns a transformed version
+        target_transform (callable, optional): A function/transform that
+            takes in the target and transforms it
     """
 
     def __init__(
-        self, index, data, class_label, transform=None, target_transform=None
+        self,
+        index: int,
+        data: list,
+        class_label: int,
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None
     ) -> None:
         self.index = index
         self.data = data
@@ -49,8 +65,8 @@ class Dataset(TorchDataset):
 
 class ClassDataset:
     """
-    Base class for a dataset composed of classes. Each item from a ``ClassDataset``
-    is a ``Dataset`` containing samples from the given class:
+    Base class for a dataset composed of classes. Each item from a :class:`ClassDataset`
+    is a :class:`Dataset` containing samples from the given class:
 
     .. code-block::
 
@@ -61,6 +77,19 @@ class ClassDataset:
         ├─────────┬─────────┐
         │         │         │
         sample1   sample2   ...
+
+    Args:
+        root (str): Root directory of dataset
+        n_way (int): Number of the classes per tasks
+        meta_split (str, optional, default='train'): Name of the split to
+            be used: 'train' / 'val' / 'test
+        cache_path (str): Path to store the cache file
+        transform (callable, optional): A function/transform that takes in
+            an PIL image and returns a transformed version
+        target_transform (callable, optional): A function/transform that
+            takes in the target and transforms it
+        augmentations (list of callable, optional): A list of functions that
+            augment the dataset with new classes.
     """
 
     def __init__(
@@ -69,7 +98,8 @@ class ClassDataset:
         meta_split: str,
         cache_path: str,
         transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None
+        target_transform: Optional[Callable] = None,
+        augmentations: List[Callable] = None
     ) -> None:
         if meta_split not in ['train', 'val', 'test']:
             raise ValueError(
@@ -82,8 +112,12 @@ class ClassDataset:
         self.target_transform = target_transform
         self._prepro_cache = os.path.join(self.root, cache_path)
 
+        if augmentations is None:
+            augmentations = []
+        self.augmentations = augmentations
+
     def __len__(self) -> int:
-        return self.n_classes
+        return self.n_classes * (len(self.augmentations) + 1)
 
     def preprocess(self) -> None:
         if self._check_cache():
@@ -131,9 +165,29 @@ class ClassDataset:
         self.label_to_images = state['label_to_images']
         self.labels = state['labels']
 
+    def compose_transform(self, transform: Callable) -> Callable:
+        """
+        Composed another transform functions with the current one.
+        """
+        if self.transform is None:
+            new_transform = transform
+        else:
+            new_transform = Compose([transform, self.transform])
+        return new_transform
+
     def __getitem__(self, index) -> Dataset:
         class_label = self.labels[self.meta_split][index % self.n_classes]
         data = self.label_to_images[class_label]
+
+        augmentation_index = (index // self.n_classes) - 1
+        # the exsiting classes' labels start after the augmented new classes
+        if augmentation_index < 0:
+            class_label += len(self.augmentations) * self.n_classes
+        # if the selected class is one of the augmented new classes
+        else:
+            class_label = augmentation_index
+            # add augmentation transform to the transorm list
+            self.transform = self.compose_transform(self.augmentations[augmentation_index])
 
         return Dataset(
             index, data, class_label,
@@ -152,8 +206,12 @@ class TaskDataset(ConcatDataset):
         ├────────┬────────┬────────┬────────┐
         │        │        │        │        │
         c1_s1    c1_s2    ...      c2_s1    ...
+
+    Args:
+        datasets (list of Dataset): A list of the :class:`Dataset` to be concatenated
+        n_classes (int): Number of the given classes
     """
-    def __init__(self, datasets: Dataset, n_classes: int) -> None:
+    def __init__(self, datasets: List[Dataset], n_classes: int) -> None:
         super(TaskDataset, self).__init__(datasets)
         self.n_classes = n_classes
 
@@ -163,10 +221,10 @@ class TaskDataset(ConcatDataset):
 
 class SubTaskDataset(Subset):
     """
-    Subset of a ``TaskDataset`` at specified indices.
+    Subset of a :class:`TaskDataset` at specified indices.
     """
     def __init__(
-        self, dataset: Dataset, indices: List[int], n_classes: int = None
+        self, dataset: TaskDataset, indices: List[int], n_classes: int = None
     ) -> None:
         super(SubTaskDataset, self).__init__(dataset, indices)
         if n_classes is None:
@@ -180,6 +238,14 @@ class SubTaskDataset(Subset):
 class MetaDataset(TorchDataset):
     """
     A dataset for fast indexing of samples within classes.
+
+    Args:
+        dataset (ClassDataset)
+        n_way (int): Number of the classes per tasks
+        k_shot_support (int, optional): Number of samples per class in support set
+        k_shot_query (int, optional):  Number of samples per class in query set
+        shuffle (bool, optional, default=True): If ``True``, samples in a class
+            will be shuffled before been splited to support and query set
     """
     def __init__(
         self,

@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Optional, Tuple, Any
+from typing import Callable, Optional, Tuple, Any, List
 from collections import defaultdict
 import pickle
 from PIL import Image
@@ -23,6 +23,8 @@ class MiniImageNetClassDataset(ClassDataset):
             an PIL image and returns a transformed version
         target_transform (callable, optional): A function/transform that
             takes in the target and transforms it
+        augmentations (list of callable, optional):  A list of functions that
+            augment the dataset with new classes.
         download (bool, optional, default=False): If true, downloads the dataset
             zip files from the internet and puts it in root directory. If the
             zip files are already downloaded, they are not downloaded again.
@@ -39,6 +41,7 @@ class MiniImageNetClassDataset(ClassDataset):
         meta_split: str = 'train',
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
+        augmentations: List[Callable] = None,
         download: bool = False
     ) -> None:
         super(MiniImageNetClassDataset, self).__init__(
@@ -46,7 +49,8 @@ class MiniImageNetClassDataset(ClassDataset):
             meta_split = meta_split,
             cache_path = self.dataset_name + '_cache.pth.tar',
             transform = transform,
-            target_transform = target_transform
+            target_transform = target_transform,
+            augmentations = augmentations
         )
 
         if download:
@@ -98,10 +102,10 @@ class MiniImageNetClassDataset(ClassDataset):
                 n_classes = len(targets)
 
                 categorical = (torch.randperm(len(targets)) + cumulative_size).tolist()
-                to_categorical = {
-                    target: categorical[i]
+                to_categorical = dict(
+                    (target, categorical[i])
                     for (i, target) in enumerate(list(targets.keys()))
-                }
+                )
                 self.labels[split] = categorical
 
                 for label, indices in targets.items():
@@ -137,6 +141,8 @@ class MiniImageNet(MetaDataset):
             an PIL image and returns a transformed version
         target_transform (callable, optional): A function/transform that
             takes in the target and transforms it
+        augmentations (list of callable, optional):  A list of functions that
+            augment the dataset with new classes.
         download (bool, optional, default=False): If true, downloads the dataset
             zip files from the internet and puts it in root directory. If the
             zip files are already downloaded, they are not downloaded again.
@@ -157,6 +163,7 @@ class MiniImageNet(MetaDataset):
         shuffle: bool = True,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
+        augmentations: List[Callable] = None,
         download: bool = False
     ) -> None:
         dataset = MiniImageNetClassDataset(
@@ -164,6 +171,7 @@ class MiniImageNet(MetaDataset):
             meta_split = meta_split,
             transform = transform,
             target_transform = target_transform,
+            augmentations = augmentations,
             download = download
         )
 

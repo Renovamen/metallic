@@ -1,6 +1,6 @@
 import os
 from collections import defaultdict
-from typing import Callable, Optional, Dict
+from typing import Callable, Optional, Dict, List
 import torch
 from torch.utils.data import ConcatDataset
 from torchvision.datasets.omniglot import Omniglot as TorchOmniglot
@@ -23,6 +23,8 @@ class OmniglotClassDataset(ClassDataset):
             an PIL image and returns a transformed version
         target_transform (callable, optional): A function/transform that
             takes in the target and transforms it
+        augmentations (list of callable, optional):  A list of functions that
+            augment the dataset with new classes.
         download (bool, optional, default=False): If true, downloads the dataset
             zip files from the internet and puts it in root directory. If the
             zip files are already downloaded, they are not downloaded again.
@@ -37,6 +39,7 @@ class OmniglotClassDataset(ClassDataset):
         use_vinyals_split: bool = True,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
+        augmentations: List[Callable] = None,
         download: bool = False
     ) -> None:
         super(OmniglotClassDataset, self).__init__(
@@ -44,7 +47,8 @@ class OmniglotClassDataset(ClassDataset):
             meta_split = meta_split,
             cache_path = self.dataset_name + '_cache.pth.tar',
             transform = transform,
-            target_transform = target_transform
+            target_transform = target_transform,
+            augmentations = augmentations
         )
 
         if self.meta_split == 'val' and (not use_vinyals_split):
@@ -130,6 +134,8 @@ class Omniglot(MetaDataset):
             an PIL image and returns a transformed version
         target_transform (callable, optional): A function/transform that
             takes in the target and transforms it
+        augmentations (list of callable, optional):  A list of functions that
+            augment the dataset with new classes.
         download (bool, optional, default=False): If true, downloads the dataset
             zip files from the internet and puts it in root directory. If the
             zip files are already downloaded, they are not downloaded again.
@@ -155,6 +161,7 @@ class Omniglot(MetaDataset):
         shuffle: bool = True,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
+        augmentations: List[Callable] = None,
         download: bool = False
     ) -> None:
         dataset = OmniglotClassDataset(
@@ -163,6 +170,7 @@ class Omniglot(MetaDataset):
             use_vinyals_split = use_vinyals_split,
             transform = transform,
             target_transform = target_transform,
+            augmentations = augmentations,
             download = download
         )
 

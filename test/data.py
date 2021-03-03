@@ -11,6 +11,7 @@ sys.path.append(base_path)
 
 from metallic.data.datasets import Omniglot, MetaDataset, TaskDataset
 from metallic.data.dataloader import MetaDataLoader
+from metallic.transforms import Rotation
 
 N_WAY = 5
 K_SHOT = {
@@ -34,41 +35,43 @@ def sample_task(dataset: MetaDataset, n_way: int) -> TaskDataset:
 
 
 class TestData(unittest.TestCase):
-    def test_meta_dataset(self) -> None:
-        samples_per_class = 20
+    # def test_meta_dataset(self) -> None:
+    #     samples_per_class = 20
 
-        dataset = Omniglot(root = DATA_PATH, n_way = N_WAY)
-        assert isinstance(dataset, MetaDataset)
+    #     dataset = Omniglot(root = DATA_PATH, n_way = N_WAY)
+    #     assert isinstance(dataset, MetaDataset)
 
-        # sample a task
-        task = sample_task(dataset, N_WAY)
-        assert task.n_classes == N_WAY
-        assert len(task) == N_WAY * samples_per_class
+    #     # sample a task
+    #     task = sample_task(dataset, N_WAY)
+    #     assert task.n_classes == N_WAY
+    #     assert len(task) == N_WAY * samples_per_class
 
-    def test_meta_dataset_split(self) -> None:
-        dataset = Omniglot(
-            root = DATA_PATH,
-            n_way = N_WAY,
-            k_shot_support = K_SHOT["support"],
-            k_shot_query = K_SHOT["query"]
-        )
+    # def test_meta_dataset_split(self) -> None:
+    #     dataset = Omniglot(
+    #         root = DATA_PATH,
+    #         n_way = N_WAY,
+    #         k_shot_support = K_SHOT["support"],
+    #         k_shot_query = K_SHOT["query"]
+    #     )
 
-        # sample a task
-        task = sample_task(dataset, N_WAY)
-        assert set(task.keys()) == set(["support", "query"])
+    #     # sample a task
+    #     task = sample_task(dataset, N_WAY)
+    #     assert set(task.keys()) == set(["support", "query"])
 
-        for split in ["support", "query"]:
-            assert task[split].n_classes == N_WAY
-            assert len(task[split]) == N_WAY * K_SHOT[split]
+    #     for split in ["support", "query"]:
+    #         assert task[split].n_classes == N_WAY
+    #         assert len(task[split]) == N_WAY * K_SHOT[split]
 
     def test_metaloader(self):
         transform = Compose([Resize(28), ToTensor()])
+        augmentations = [Rotation(90), Rotation(180), Rotation(270)]
         dataset = Omniglot(
             root = DATA_PATH,
             n_way = N_WAY,
-            transform = transform,
             k_shot_support = K_SHOT["support"],
-            k_shot_query = K_SHOT["query"]
+            k_shot_query = K_SHOT["query"],
+            transform = transform,
+            augmentations = augmentations
         )
         dataloader = MetaDataLoader(dataset, batch_size=BATCH_SIZE)
 
