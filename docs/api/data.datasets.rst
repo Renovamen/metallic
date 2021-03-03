@@ -46,8 +46,8 @@ Omniglot
 mini-ImageNet
 ---------------------------
 
-.. autoclass:: MiniImagenet
+.. autoclass:: MiniImageNet
    :members:
 
-.. autoclass:: MiniImagenetClassDataset
+.. autoclass:: MiniImageNetClassDataset
    :members:

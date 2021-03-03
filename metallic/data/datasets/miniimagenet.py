@@ -11,7 +11,7 @@ from torchvision.datasets.utils import download_file_from_google_drive, \
 
 from .base import ClassDataset, MetaDataset
 
-class MiniImagenetClassDataset(ClassDataset):
+class MiniImageNetClassDataset(ClassDataset):
     """
     A dataset composed of classes from mini-ImageNet.
 
@@ -41,7 +41,7 @@ class MiniImagenetClassDataset(ClassDataset):
         target_transform: Optional[Callable] = None,
         download: bool = False
     ) -> None:
-        super(MiniImagenetClassDataset, self).__init__(
+        super(MiniImageNetClassDataset, self).__init__(
             root = os.path.join(root, self.dataset_name),
             meta_split = meta_split,
             cache_path = self.dataset_name + '_cache.pth.tar',
@@ -62,6 +62,7 @@ class MiniImagenetClassDataset(ClassDataset):
         return check_integrity(os.path.join(self.root, self.dataset_name + '.tar.gz'), self.zip_md5)
 
     def download(self) -> None:
+        """Download file from Google drive."""
         if self._check_integrity():
             print('Files already downloaded and verified')
             return
@@ -84,13 +85,19 @@ class MiniImagenetClassDataset(ClassDataset):
         from scratch.
         """
         print('Cache not found, creating from scratch...')
+
+        self.labels = {}
+        self.label_to_images = defaultdict(list)
+        cumulative_size = 0
+
         for split in ["train", "val", "test"]:
             pkl_path = os.path.join(self.root, self.pkl_name.format(split))
             with open(pkl_path, 'rb') as f:
                 data = pickle.load(f)
                 images, targets = data['image_data'], data['class_dict']
+                n_classes = len(targets)
 
-                categorical = torch.randperm(len(targets)).tolist()
+                categorical = (torch.randperm(len(targets)) + cumulative_size).tolist()
                 to_categorical = {
                     target: categorical[i]
                     for (i, target) in enumerate(list(targets.keys()))
@@ -98,10 +105,14 @@ class MiniImagenetClassDataset(ClassDataset):
                 self.labels[split] = categorical
 
                 for label, indices in targets.items():
-                    self.label_to_images[to_categorical[label]] = [Image.fromarray(image) for image in images[indices]]
+                    self.label_to_images[to_categorical[label]] = [
+                        Image.fromarray(image)
+                        for image in images[indices]
+                    ]
+            cumulative_size += n_classes
 
 
-class MiniImagenet(MetaDataset):
+class MiniImageNet(MetaDataset):
     """
     The mini-ImageNet dataset introduced in [1]. It samples 100 classed from
     ImageNet (ILSVRC-2012), in which 64 for training, 16 for validation, and
@@ -148,7 +159,7 @@ class MiniImagenet(MetaDataset):
         target_transform: Optional[Callable] = None,
         download: bool = False
     ) -> None:
-        dataset = MiniImagenetClassDataset(
+        dataset = MiniImageNetClassDataset(
             root = root,
             meta_split = meta_split,
             transform = transform,
@@ -156,7 +167,7 @@ class MiniImagenet(MetaDataset):
             download = download
         )
 
-        super(MiniImagenet, self).__init__(
+        super(MiniImageNet, self).__init__(
             dataset = dataset,
             n_way = n_way,
             k_shot_support = k_shot_support,
