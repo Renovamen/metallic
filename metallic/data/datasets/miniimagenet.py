@@ -84,12 +84,6 @@ class MiniImageNetClassDataset(ClassDataset):
         extract_archive(archive, self.root)
 
     def create_cache(self) -> None:
-        """
-        Iterates over the entire dataset and creates a map of target to samples
-        from scratch.
-        """
-        print('Cache not found, creating from scratch...')
-
         self.labels = {}
         self.label_to_images = defaultdict(list)
         cumulative_size = 0

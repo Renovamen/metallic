@@ -123,8 +123,9 @@ class ClassDataset:
         if self._check_cache():
             self.load_cache()
         else:
+            print('Cache not found, creating from scratch...')
             self.create_cache()
-            # self.save_cache()
+            self.save_cache()
         self.n_classes = len(self.labels[self.meta_split])
 
     def _check_cache(self) -> bool:
@@ -133,22 +134,15 @@ class ClassDataset:
         """
         return os.path.isfile(self._prepro_cache)
 
-    def create_labels(self) -> None:
-        raise NotImplementError()
-
     def create_cache(self) -> None:
         """
         Iterates over the entire dataset and creates a map of target to samples
-        from scratch.
+        and list of labels from scratch.
         """
-        print('Cache not found, creating from scratch...')
-        self.create_labels()
-        self.label_to_images = defaultdict(list)
-
-        for (image, label) in self.dataset:
-            self.label_to_images[label].append(image)
+        raise NotImplementedError
 
     def save_cache(self) -> None:
+        print('saving...', self._prepro_cache)
         state = {
             'label_to_images': self.label_to_images,
             'labels': self.labels
@@ -160,7 +154,6 @@ class ClassDataset:
         """
         Load map of target to samples from cache.
         """
-        print('Loading cache from {}'.format(self._prepro_cache))
         state = torch.load(self._prepro_cache)
         self.label_to_images = state['label_to_images']
         self.labels = state['labels']

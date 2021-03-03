@@ -5,8 +5,31 @@ metallic.data.datasets
 .. automodule:: metallic.data.datasets
 
 
+Omniglot
+---------------------------
+
+.. autoclass:: Omniglot
+   :members:
+
+.. autoclass:: OmniglotClassDataset
+   :members:
+
+
+mini-ImageNet
+---------------------------
+
+.. autoclass:: MiniImageNet
+   :members:
+
+.. autoclass:: MiniImageNetClassDataset
+   :members:
+
+
 Base
 ---------------------------
+
+If you want to create your own dataset for meta-learning, maybe these classes will be helpful.
+
 .. autoclass:: Dataset
    :members:
    :undoc-members:
@@ -31,23 +54,3 @@ Base
    :members:
    :undoc-members:
    :show-inheritance:
-
-
-Omniglot
----------------------------
-
-.. autoclass:: Omniglot
-   :members:
-
-.. autoclass:: OmniglotClassDataset
-   :members:
-
-
-mini-ImageNet
----------------------------
-
-.. autoclass:: MiniImageNet
-   :members:
-
-.. autoclass:: MiniImageNetClassDataset
-   :members:

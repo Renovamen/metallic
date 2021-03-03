@@ -1,6 +1,7 @@
 import os
 from collections import defaultdict
 from typing import Callable, Optional, Dict, List
+from PIL import ImageOps
 import torch
 from torch.utils.data import ConcatDataset
 from torchvision.datasets.omniglot import Omniglot as TorchOmniglot
@@ -79,12 +80,15 @@ class OmniglotClassDataset(ClassDataset):
         self.dataset = ConcatDataset((self.omniglot['background'], self.omniglot['evaluation']))
         self.preprocess()
 
-    def create_labels(self) -> None:
-        """
-        Create a list of labels for each split.
-        """
+    def create_cache(self) -> None:
         self.labels = {}
+        self.label_to_images = defaultdict(list)
 
+        # create a map of target to samples
+        for (image, label) in self.dataset:
+            self.label_to_images[label].append(ImageOps.invert(image))
+
+        # create a list of labels for each split
         # eval / background split
         get_name = {
             'train': 'background',

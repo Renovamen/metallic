@@ -6,7 +6,7 @@ from itertools import combinations
 import torch
 from torchvision.transforms import Compose, Resize, ToTensor
 
-base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(base_path)
 
 from metallic.data.datasets import Omniglot, MetaDataset, TaskDataset
@@ -15,8 +15,8 @@ from metallic.transforms import Rotation
 
 N_WAY = 5
 K_SHOT = {
-    "support": 10,
-    "query": 5
+    'support': 10,
+    'query': 5
 }
 DATA_PATH = os.path.join(base_path, 'data')
 BATCH_SIZE = 20
@@ -35,32 +35,32 @@ def sample_task(dataset: MetaDataset, n_way: int) -> TaskDataset:
 
 
 class TestData(unittest.TestCase):
-    # def test_meta_dataset(self) -> None:
-    #     samples_per_class = 20
+    def test_meta_dataset(self) -> None:
+        samples_per_class = 20
 
-    #     dataset = Omniglot(root = DATA_PATH, n_way = N_WAY)
-    #     assert isinstance(dataset, MetaDataset)
+        dataset = Omniglot(root = DATA_PATH, n_way = N_WAY)
+        assert isinstance(dataset, MetaDataset)
 
-    #     # sample a task
-    #     task = sample_task(dataset, N_WAY)
-    #     assert task.n_classes == N_WAY
-    #     assert len(task) == N_WAY * samples_per_class
+        # sample a task
+        task = sample_task(dataset, N_WAY)
+        assert task.n_classes == N_WAY
+        assert len(task) == N_WAY * samples_per_class
 
-    # def test_meta_dataset_split(self) -> None:
-    #     dataset = Omniglot(
-    #         root = DATA_PATH,
-    #         n_way = N_WAY,
-    #         k_shot_support = K_SHOT["support"],
-    #         k_shot_query = K_SHOT["query"]
-    #     )
+    def test_meta_dataset_split(self) -> None:
+        dataset = Omniglot(
+            root = DATA_PATH,
+            n_way = N_WAY,
+            k_shot_support = K_SHOT['support'],
+            k_shot_query = K_SHOT['query']
+        )
 
-    #     # sample a task
-    #     task = sample_task(dataset, N_WAY)
-    #     assert set(task.keys()) == set(["support", "query"])
+        # sample a task
+        task = sample_task(dataset, N_WAY)
+        assert set(task.keys()) == set(['support', 'query'])
 
-    #     for split in ["support", "query"]:
-    #         assert task[split].n_classes == N_WAY
-    #         assert len(task[split]) == N_WAY * K_SHOT[split]
+        for split in ['support', 'query']:
+            assert task[split].n_classes == N_WAY
+            assert len(task[split]) == N_WAY * K_SHOT[split]
 
     def test_metaloader(self):
         transform = Compose([Resize(28), ToTensor()])
@@ -68,8 +68,8 @@ class TestData(unittest.TestCase):
         dataset = Omniglot(
             root = DATA_PATH,
             n_way = N_WAY,
-            k_shot_support = K_SHOT["support"],
-            k_shot_query = K_SHOT["query"],
+            k_shot_support = K_SHOT['support'],
+            k_shot_query = K_SHOT['query'],
             transform = transform,
             augmentations = augmentations
         )
@@ -78,7 +78,7 @@ class TestData(unittest.TestCase):
         batch = next(iter(dataloader))
         assert isinstance(batch, dict)
 
-        for split in ["support", "query"]:
+        for split in ['support', 'query']:
             assert split in batch
             inputs, targets = batch[split]
 

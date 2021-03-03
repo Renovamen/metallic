@@ -1,6 +1,8 @@
 metallic.models
 =======================
 
+Here is a collection of some commonly used models in meta-learning tasks.
+
 .. automodule:: metallic.models
 
 
