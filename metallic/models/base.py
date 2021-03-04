@@ -89,8 +89,9 @@ class ConvGroup(nn.Module):
     """
 
     def __init__(
+        self,
         in_channels: int = 1,
-        out_channels: int = 64,
+        hidden_size: int = 64,
         kernel_size: Union[int, Tuple[int]] = 3,
         stride: Union[int, Tuple[int]] = 1,
         pool: bool = True,

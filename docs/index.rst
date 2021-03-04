@@ -1,9 +1,9 @@
 Metallic
 ========
 
-`Metallic <https://github.com/Renovamen/metallic>`_ is a minimal library for meta-learning research based on `PyTorch <https://github.com/pytorch/pytorch>`_ and `higher <https://github.com/facebookresearch/higher>`_.
+`Metallic <https://github.com/Renovamen/metallic>`_ is an elegant library for meta-learning research based on `PyTorch <https://github.com/pytorch/pytorch>`_.
 
-Different from other meta-learning libraries (like `learn2learn <https://github.com/learnables/learn2learn>`_ and `Torchmeta <https://github.com/tristandeleu/pytorch-meta>`_), Metallic aims at providing an lightweight framework with the least amount of code for setting up meta-learning experiments quickly.
+Different from other meta-learning libraries, Metallic aims at providing a lightweight modularized toolbox for setting up meta-learning experiments quickly with the least amount of code.
 
 This library is **work in progress**.
 
@@ -38,8 +38,8 @@ https://github.com/Renovamen/metallic
    api/data
    api/data.datasets
    api/data.benchmarks
+   api/data.transforms
    api/models
-   api/transforms
 
 
 Acknowledgements
@@ -49,6 +49,7 @@ Metallic is highly inspired by the following awesome libraries:
 
 - `learn2learn <https://github.com/learnables/learn2learn>`_
 - `Torchmeta <https://github.com/tristandeleu/pytorch-meta>`_
+- `higher <https://github.com/facebookresearch/higher>`_
 
 
 License

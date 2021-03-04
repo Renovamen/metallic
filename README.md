@@ -1,10 +1,10 @@
 # Metallic
 
-Metallic is a minimal library for meta-learning research based on [PyTorch](https://github.com/pytorch/pytorch) and [higher](https://github.com/facebookresearch/higher).
+Metallic is an elegant library for meta-learning research based on [PyTorch](https://github.com/pytorch/pytorch).
 
-Different from other meta-learning libraries (like [learn2learn](https://github.com/learnables/learn2learn) and [Torchmeta](https://github.com/tristandeleu/pytorch-meta)), Metallic aims at providing an lightweight framework with the least amount of code for setting up meta-learning experiments quickly.
+Different from other meta-learning libraries, Metallic aims at providing a lightweight modularized toolbox for setting up meta-learning experiments quickly with the least amount of code.
 
-This library is **work in progress**.
+The library is **work in progress**.
 
 
 &nbsp;
@@ -39,7 +39,7 @@ Metallic is highly inspired by the following awesome libraries:
 
 - [learn2learn](https://github.com/learnables/learn2learn)
 - [Torchmeta](https://github.com/tristandeleu/pytorch-meta)
-
+- [higher](https://github.com/facebookresearch/higher)
 
 &nbsp;
 

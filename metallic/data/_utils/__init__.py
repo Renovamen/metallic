@@ -1,1 +1,2 @@
-from . import splits, collate
+from .splits import *
+from .collate import *

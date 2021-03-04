@@ -8,7 +8,9 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset as TorchDataset
 from torch.utils.data import ConcatDataset, Subset
-from torchvision.transforms import Compose
+
+from ..transforms import Categorical
+from ..transforms._utils import compose_transform
 
 class Dataset(TorchDataset):
     """
@@ -158,20 +160,11 @@ class ClassDataset:
         self.label_to_images = state['label_to_images']
         self.labels = state['labels']
 
-    def compose_transform(self, transform: Callable) -> Callable:
-        """
-        Composed another transform functions with the current one.
-        """
-        if self.transform is None:
-            new_transform = transform
-        else:
-            new_transform = Compose([transform, self.transform])
-        return new_transform
-
     def __getitem__(self, index) -> Dataset:
         class_label = self.labels[self.meta_split][index % self.n_classes]
         data = self.label_to_images[class_label]
 
+        transform = self.transform
         augmentation_index = (index // self.n_classes) - 1
         # the exsiting classes' labels start after the augmented new classes
         if augmentation_index < 0:
@@ -179,12 +172,15 @@ class ClassDataset:
         # if the selected class is one of the augmented new classes
         else:
             class_label = augmentation_index
-            # add augmentation transform to the transorm list
-            self.transform = self.compose_transform(self.augmentations[augmentation_index])
+            # add augmentation transform to the transform list
+            transform = compose_transform(
+                self.augmentations[augmentation_index],
+                transform
+            )
 
         return Dataset(
             index, data, class_label,
-            transform = self.transform,
+            transform = transform,
             target_transform = self.target_transform
         )
 
@@ -207,6 +203,13 @@ class TaskDataset(ConcatDataset):
     def __init__(self, datasets: List[Dataset], n_classes: int) -> None:
         super(TaskDataset, self).__init__(datasets)
         self.n_classes = n_classes
+
+        to_categorical = Categorical(n_classes)
+        for dataset in self.datasets:
+            dataset.target_transform = compose_transform(
+                to_categorical,
+                dataset.target_transform
+            )
 
     def __getitem__(self, index: int) -> tuple:
         return ConcatDataset.__getitem__(self, index)

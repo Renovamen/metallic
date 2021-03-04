@@ -102,7 +102,7 @@ class OmniglotClassDataset(ClassDataset):
         file_to_label = _file_to_label(self.omniglot)
         for name in ['train', 'val', 'test']:
             split_name = 'vinyals_{}'.format(name)
-            split = _utils.splits.load_splits(self.dataset_name, '{0}.json'.format(name))
+            split = _utils.load_splits(self.dataset_name, '{0}.json'.format(name))
             self.labels[split_name] = sorted([
                 file_to_label['/'.join([name, alphabet, character])]
                 for (name, alphabets) in split.items()

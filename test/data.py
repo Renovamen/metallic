@@ -11,7 +11,7 @@ sys.path.append(base_path)
 
 from metallic.data.datasets import Omniglot, MetaDataset, TaskDataset
 from metallic.data.dataloader import MetaDataLoader
-from metallic.transforms import Rotation
+from metallic.data.transforms import Rotation
 
 N_WAY = 5
 K_SHOT = {

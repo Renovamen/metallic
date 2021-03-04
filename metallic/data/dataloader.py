@@ -20,7 +20,7 @@ class MetaDataLoader(DataLoader):
         worker_init_fn = Callable[[int], None]
     ) -> None:
 
-        collate_fn = _utils.collate.MetaCollate()
+        collate_fn = _utils.MetaCollate()
 
         if sampler is None:
             if shuffle:

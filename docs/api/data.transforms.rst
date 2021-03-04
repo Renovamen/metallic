@@ -1,7 +1,7 @@
-metallic.transforms
+metallic.data.transforms
 =======================
 
-.. automodule:: metallic.transforms
+.. automodule:: metallic.data.transforms
 
 
 .. autoclass:: Rotation
@@ -11,4 +11,7 @@ metallic.transforms
    :members:
 
 .. autoclass:: VerticalFlip
+   :members:
+
+.. autoclass:: Categorical
    :members:

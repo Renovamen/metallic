@@ -1,6 +1,6 @@
 from torchvision.transforms import Compose, Resize, ToTensor
 from ..datasets import MiniImageNet
-from ...transforms import Rotation
+from ..transforms import Rotation
 
 def miniimagenet_benchmark(
     root: str, n_way: int = 5, k_shot: int = 1, **kwargs
