@@ -3,3 +3,4 @@ sphinx-rtd-theme==0.5.1
 numpy==1.19.1
 torch==1.6.0
 torchvision==0.7.0
+higher==0.2.1
