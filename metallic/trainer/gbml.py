@@ -7,6 +7,21 @@ from ..metalearners import GBML
 from ..utils.metrics import TrackMetric
 
 class GBMLTrainer:
+    """
+    A wrap of training procedure for gradient-based meta-learning algorithms.
+
+    Args:
+        metalearner (GBML): An instance of :class:`~metallic.metalearners.GBML`
+            class
+        train_loader (MetaDataLoader): Train data loader, an instance of
+            :class:`~metallic.data.dataloader.MetaDataLoader` class
+        val_loader (MetaDataLoader, optional): Validation data loader, an
+            instance of :class:`~metallic.data.dataloader.MetaDataLoader` class
+        n_epoches (int, optional, default=100): Number of epoches
+        n_batches (int, optional, default=500): Number of the batches in an epoch
+            to be trained on
+    """
+
     def __init__(
         self,
         metalearner: GBML,
@@ -14,7 +29,7 @@ class GBMLTrainer:
         val_loader: Optional[MetaDataLoader] = None,
         n_epoches: int = 100,
         n_batches: int = 500,
-        print_freq: int = 10
+        print_freq: int = 100
     ):
         self.metalearner = metalearner
         self.train_loader = train_loader
@@ -128,6 +143,9 @@ class GBMLTrainer:
         return outer_accuracies.avg
 
     def run_train(self):
+        """
+        Run training procedure.
+        """
         best_acc = 0.
 
         for epoch in range(self.n_epoches):

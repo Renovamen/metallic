@@ -7,6 +7,30 @@ from .gbml import GBML
 from ..utils import metrics
 
 class MAML(GBML):
+    """
+    Implementation of Model-Agnostic Meta-Learning (MAML) algorithm proposed
+    in [1].
+
+    `Here <https://github.com/cbfinn/maml>`_ is the official implementation
+    of MAML based on Tensorflow.
+
+    Args:
+        model (torch.nn.Module): Model to be wrapped
+        in_optim (torch.optim.Optimizer): Optimizer for the inner loop
+        out_optim (torch.optim.Optimizer): Optimizer for the outer loop
+        root (str): Root directory to save checkpoints
+        save_basename (str, optional): Base name of the saved checkpoints
+        lr_scheduler (callable, optional): Learning rate scheduler
+        loss_function (callable, optional): Loss function
+        inner_steps (int, optional, defaut=1): Number of gradient descent
+            updates in inner loop
+        device (optional): Device on which the model is defined
+
+    References
+    ----------
+    1. "`Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks. <https://arxiv.org/pdf/1703.03400.pdf>`_" Chelsea Finn, et al. ICML 2017.
+    """
+
     def __init__(
         self,
         model: nn.Module,

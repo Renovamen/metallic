@@ -236,7 +236,7 @@ class MetaDataset(TorchDataset):
     A dataset for fast indexing of samples within classes.
 
     Args:
-        dataset (ClassDataset)
+        dataset (ClassDataset): An instance of :class:`ClassDataset` class
         n_way (int): Number of the classes per tasks
         k_shot_support (int, optional): Number of samples per class in support set
         k_shot_query (int, optional):  Number of samples per class in query set
