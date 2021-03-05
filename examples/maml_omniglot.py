@@ -19,7 +19,7 @@ OUTER_LR = 0.001
 INNER_LR = 0.4
 INNER_STEPS = 1
 N_EPOCHES = 50
-N_BATCHES = 2
+N_BATCHES = 100
 N_WORKERS = 5
 
 def set_trainer():

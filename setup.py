@@ -19,12 +19,20 @@ setup(
     name = 'metallic',
     version = __version__,
     packages = find_packages(),
-    description = 'A simple toolbox for meta-learning research based on Pytorch.',
+    description = 'A clean PyTorch meta-learning library.',
     long_description = readme(),
     long_description_content_type = 'text/markdown',
     license = 'MIT',
     author = 'Xiaohan Zou',
     author_email = 'renovamenzxh@gmail.com',
     url = 'https://github.com/Renovamen/metallic',
-    include_package_data = True
+    include_package_data = True,
+    install_requires = [
+        'numpy>=1.14.0,<1.20.0',
+        'torch>=1.4.0',
+        'torchvision>=0.5.0',
+        'higher>=0.2.1',
+        'requests',
+        'tqdm',
+    ]
 )
