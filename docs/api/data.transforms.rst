@@ -1,5 +1,5 @@
 metallic.data.transforms
-=======================
+========================
 
 .. automodule:: metallic.data.transforms
 

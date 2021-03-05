@@ -4,7 +4,7 @@ import torch
 from torch import nn, optim
 
 from .gbml import GBML
-from ..utils import metrics
+from .. import utils
 
 class MAML(GBML):
     """
@@ -61,6 +61,7 @@ class MAML(GBML):
 
     @torch.enable_grad()
     def inner_loop(self, fmodel, diffopt, train_input, train_target):
+        """Inner loop update."""
         for step in range(self.inner_steps):
             # compute loss on the support set
             train_output = fmodel(train_input)
@@ -69,6 +70,8 @@ class MAML(GBML):
             diffopt.step(support_loss)
 
     def outer_loop(self, batch: dict, meta_train: bool = True):
+        """Outer loop update."""
+
         # clear gradient of last batch
         self.out_optim.zero_grad()
 
@@ -102,7 +105,7 @@ class MAML(GBML):
                     query_loss /= len(query_input)
 
                 # find accuracy on query set
-                query_accuracy = metrics.accuracy(query_output, query_target)
+                query_accuracy = utils.accuracy(query_output, query_target)
 
                 outer_loss += query_loss.detach().item()
                 outer_accuracy += query_accuracy.item()

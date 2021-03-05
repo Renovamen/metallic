@@ -42,6 +42,7 @@ https://github.com/Renovamen/metallic
    api/models
    api/metalearners
    api/trainer
+   api/utils
 
 
 Acknowledgements

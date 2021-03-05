@@ -22,6 +22,7 @@ setup(
     description = 'A clean PyTorch meta-learning library.',
     long_description = readme(),
     long_description_content_type = 'text/markdown',
+    keywords=['pytorch', 'meta-learning', 'few-shot learning'],
     license = 'MIT',
     author = 'Xiaohan Zou',
     author_email = 'renovamenzxh@gmail.com',

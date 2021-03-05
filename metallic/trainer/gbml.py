@@ -4,7 +4,7 @@ from torch import nn
 
 from ..data import MetaDataLoader
 from ..metalearners import GBML
-from ..utils.metrics import TrackMetric
+from ..utils import MetricTracker, Logger
 
 class GBMLTrainer:
     """
@@ -19,7 +19,8 @@ class GBMLTrainer:
             instance of :class:`~metallic.data.dataloader.MetaDataLoader` class
         n_epoches (int, optional, default=100): Number of epoches
         n_batches (int, optional, default=500): Number of the batches in an epoch
-            to be trained on
+        logger (Logger, optional): An instance of
+            :class:`~metallic.utils.logger.Logger` class
     """
 
     def __init__(
@@ -29,14 +30,14 @@ class GBMLTrainer:
         val_loader: Optional[MetaDataLoader] = None,
         n_epoches: int = 100,
         n_batches: int = 500,
-        print_freq: int = 100
+        logger: Optional[Logger] = None
     ):
         self.metalearner = metalearner
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.n_epoches = n_epoches
         self.n_batches = n_batches
-        self.print_freq = print_freq
+        self.logger = logger
 
         self.n_way = self.train_loader.dataset.n_way
         self.k_shot = self.train_loader.dataset.task_splits['support']
@@ -45,10 +46,8 @@ class GBMLTrainer:
         """
         Meta-train for an epoch.
         """
-        batch_time = TrackMetric()  # forward prop. + back prop. time
-        data_time = TrackMetric()  # data loading time per batch
-        outer_losses = TrackMetric()  # losses
-        outer_accuracies = TrackMetric()  # accuracies
+
+        tracker = MetricTracker('batch_time', 'data_time', 'loss', 'accuracy')
 
         # reset the start time
         start = time.time()
@@ -56,51 +55,37 @@ class GBMLTrainer:
         # training loop
         for batch_id, batch in enumerate(self.train_loader):
             # data loading time per batch
-            data_time.update(time.time() - start)
+            tracker.update('data_time', time.time() - start)
 
             # perform outer loop and get loss and accuracy
             outer_loss, outer_accuracy = self.metalearner.outer_loop(batch)
 
             # track average outer loss and accuracy
-            outer_losses.update(outer_loss)
-            outer_accuracies.update(outer_accuracy)
+            tracker.update('loss', outer_loss)
+            tracker.update('accuracy', outer_accuracy)
 
             # track average forward prop. + back prop. time per batch
-            batch_time.update(time.time() - start)
+            tracker.update('batch_time', time.time() - start)
 
             # reset the start time
             start = time.time()
 
-            # print training status
-            if (batch_id + 1) % self.print_freq == 0:
-                print(
-                    'Epoch: [{0}][{1}/{2}]\t'
-                    'Batch Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                    'Data Load Time {data_time.val:.3f} ({data_time.avg:.3f})\t'
-                    'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                    'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(
-                        epoch + 1, batch_id + 1, self.n_batches,
-                        batch_time = batch_time,
-                        data_time = data_time,
-                        loss = outer_losses,
-                        acc = outer_accuracies
-                    )
-                )
+            # log training status
+            if self.logger is not None:
+                self.logger.log(tracker.metrics, epoch + 1, batch_id + 1)
 
             if (batch_id + 1) >= self.n_batches:
                 break
 
-        return outer_accuracies.avg
+        return tracker('accuracy').mean()
 
 
     def test(self, epoch: int):
         """
         Meta-test/validate for an epoch.
         """
-        batch_time = TrackMetric()  # forward prop. + back prop. time
-        data_time = TrackMetric()  # data loading time per batch
-        outer_losses = TrackMetric()  # losses
-        outer_accuracies = TrackMetric()  # accuracies
+
+        tracker = MetricTracker('batch_time', 'data_time', 'loss', 'accuracy')
 
         # reset the start time
         start = time.time()
@@ -108,39 +93,29 @@ class GBMLTrainer:
         # validation loop
         for batch_id, batch in enumerate(self.val_loader):
             # data loading time per batch
-            data_time.update(time.time() - start)
+            tracker.update('data_time', time.time() - start)
 
             # perform outer loop and get loss and accuracy
             outer_loss, outer_accuracy = self.metalearner.outer_loop(batch, meta_train=False)
 
             # track average outer loss and accuracy
-            outer_losses.update(outer_loss)
-            outer_accuracies.update(outer_accuracy)
+            tracker.update('loss', outer_loss)
+            tracker.update('accuracy', outer_accuracy)
 
             # track average forward prop. time per batch
-            batch_time.update(time.time() - start)
+            tracker.update('batch_time', time.time() - start)
 
             # reset the start time
             start = time.time()
 
-            # print training status
-            if (batch_id + 1) % self.print_freq == 0:
-                print(
-                    'Validation: [{0}][{1}/{2}]\t'
-                    'Batch Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                    'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                    'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(
-                        epoch + 1, batch_id + 1, self.n_batches,
-                        batch_time = batch_time,
-                        loss = outer_losses,
-                        acc = outer_accuracies
-                    )
-                )
+            # print test status
+            if self.logger is not None:
+                self.logger.log(tracker.metrics, epoch + 1, batch_id + 1)
 
             if (batch_id + 1) >= self.n_batches:
                 break
 
-        return outer_accuracies.avg
+        return tracker('accuracy').mean()
 
     def run_train(self):
         """

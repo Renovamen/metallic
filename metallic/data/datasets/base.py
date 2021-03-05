@@ -1,6 +1,7 @@
 import os
 import sys
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
+from abc import ABC, abstractmethod
 from typing import Optional, Callable, Iterator, List, Tuple, Any
 from itertools import combinations
 import numpy as np
@@ -65,7 +66,7 @@ class Dataset(TorchDataset):
         return (image, target)
 
 
-class ClassDataset:
+class ClassDataset(ABC):
     """
     Base class for a dataset composed of classes. Each item from a :class:`ClassDataset`
     is a :class:`Dataset` containing samples from the given class:
@@ -131,17 +132,16 @@ class ClassDataset:
         self.n_classes = len(self.labels[self.meta_split])
 
     def _check_cache(self) -> bool:
-        """
-        Check if cache file exists.
-        """
+        """Check if cache file exists."""
         return os.path.isfile(self._prepro_cache)
 
+    @abstractmethod
     def create_cache(self) -> None:
         """
         Iterates over the entire dataset and creates a map of target to samples
         and list of labels from scratch.
         """
-        raise NotImplementedError
+        pass
 
     def save_cache(self) -> None:
         print('saving...', self._prepro_cache)
@@ -153,9 +153,7 @@ class ClassDataset:
         torch.save(state, self._prepro_cache)
 
     def load_cache(self) -> None:
-        """
-        Load map of target to samples from cache.
-        """
+        """Load map of target to samples from cache."""
         state = torch.load(self._prepro_cache)
         self.label_to_images = state['label_to_images']
         self.labels = state['labels']
@@ -312,8 +310,8 @@ class MetaDataset(TorchDataset):
         Generate a task composed with the given ``n_way`` classes.
 
         Args:
-            indices (tuple): The ``n_way`` indices of the classes to be
-                sampled in the task.
+            indices (tuple): The ``n_way`` indices of the classes to be sampled
+                in the task.
         """
         # make sure the number of classes is equal to n_way
         assert len(indices) == self.n_way

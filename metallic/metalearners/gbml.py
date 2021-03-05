@@ -1,9 +1,10 @@
 import os
+from abc import ABC, abstractmethod
 from typing import Callable, Optional
 import torch
 from torch import nn, optim
 
-class GBML:
+class GBML(ABC):
     """
     A base class for gradient-based meta-learning algorithms.
 
@@ -19,6 +20,7 @@ class GBML:
             updates in inner loop
         device (optional): Device on which the model is defined
     """
+
     def __init__(
         self,
         model: nn.Module,
@@ -65,13 +67,15 @@ class GBML:
         )
         return task_batch, n_tasks
 
-    def inner_loop(self):
+    @abstractmethod
+    def inner_loop(self) -> None:
         """Inner loop update."""
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def outer_loop(self):
         """Outer loop update."""
-        raise NotImplementedError
+        pass
 
     def lr_schedule(self) -> None:
         """Schedule learning rate."""

@@ -99,7 +99,7 @@ class OmniglotClassDataset(ClassDataset):
             self.labels[name] = list(set(label_list))
 
         # Vinyals' split
-        file_to_label = _file_to_label(self.omniglot)
+        file_to_label = self._file_to_label(self.omniglot)
         for name in ['train', 'val', 'test']:
             split_name = 'vinyals_{}'.format(name)
             split = _utils.load_splits(self.dataset_name, '{0}.json'.format(name))
@@ -109,6 +109,19 @@ class OmniglotClassDataset(ClassDataset):
                 for (alphabet, characters) in alphabets.items()
                 for character in characters
             ])
+
+    @staticmethod
+    def _file_to_label(data: dict) -> Dict[str, list]:
+        file_to_label = {}
+        start = {
+            'background': 0,
+            'evaluation': len(data['background']._characters)
+        }
+        for name in ['background', 'evaluation']:
+            for (image, label) in data[name]:
+                filename = '/'.join([name, data[name]._characters[label - start[name]]])
+                file_to_label[filename] = label
+        return file_to_label
 
 
 class Omniglot(MetaDataset):
@@ -185,16 +198,3 @@ class Omniglot(MetaDataset):
             k_shot_query = k_shot_query,
             shuffle = shuffle
         )
-
-
-def _file_to_label(data: dict) -> Dict[str, list]:
-    file_to_label = {}
-    start = {
-        'background': 0,
-        'evaluation': len(data['background']._characters)
-    }
-    for name in ['background', 'evaluation']:
-        for (image, label) in data[name]:
-            filename = '/'.join([name, data[name]._characters[label - start[name]]])
-            file_to_label[filename] = label
-    return file_to_label

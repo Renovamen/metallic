@@ -11,6 +11,7 @@ from metallic.data.dataloader import MetaDataLoader
 from metallic.models import OmniglotCNN
 from metallic.metalearners import MAML
 from metallic.trainer import GBMLTrainer
+from metallic.utils import Logger
 
 BATCH_SIZE = 16
 N_WAY = 5
@@ -45,12 +46,19 @@ def set_trainer():
         inner_steps = INNER_STEPS
     )
 
+    logger = Logger(
+        root = os.path.join(base_path, 'logs'),
+        n_batches = N_BATCHES,
+        log_basename = 'MAML'
+    )
+
     trainer = GBMLTrainer(
         metalearner = metalearner,
         train_loader = train_loader,
         val_loader = val_loader,
         n_epoches = N_EPOCHES,
-        n_batches = N_BATCHES
+        n_batches = N_BATCHES,
+        logger = logger
     )
     return trainer
 
