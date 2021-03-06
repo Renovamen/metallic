@@ -1,4 +1,5 @@
 import time
+from tqdm import tqdm
 from typing import Optional
 from torch import nn
 
@@ -18,7 +19,10 @@ class GBMLTrainer:
         val_loader (MetaDataLoader, optional): Validation data loader, an
             instance of :class:`~metallic.data.dataloader.MetaDataLoader` class
         n_epoches (int, optional, default=100): Number of epoches
-        n_batches (int, optional, default=500): Number of the batches in an epoch
+        n_iters_per_epoch (int, optional, default=500): Number of the iterations
+            per epoch
+        n_iters_test (int, optional, default=600): Number of the iterations
+            during meta-test stage
         logger (Logger, optional): An instance of
             :class:`~metallic.utils.logger.Logger` class
     """
@@ -29,14 +33,16 @@ class GBMLTrainer:
         train_loader: MetaDataLoader,
         val_loader: Optional[MetaDataLoader] = None,
         n_epoches: int = 100,
-        n_batches: int = 500,
+        n_iters_per_epoch: int = 500,
+        n_iters_test: int = 600,
         logger: Optional[Logger] = None
     ):
         self.metalearner = metalearner
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.n_epoches = n_epoches
-        self.n_batches = n_batches
+        self.n_iters_per_epoch = n_iters_per_epoch
+        self.n_iters_test = n_iters_test
         self.logger = logger
 
         self.n_way = self.train_loader.dataset.n_way
@@ -44,16 +50,17 @@ class GBMLTrainer:
 
     def train(self, epoch: int):
         """
-        Meta-train for an epoch.
+        Meta-train an epoch.
         """
-
         tracker = MetricTracker('batch_time', 'data_time', 'loss', 'accuracy')
 
         # reset the start time
         start = time.time()
 
-        # training loop
-        for batch_id, batch in enumerate(self.train_loader):
+        # meta-training loop
+        for i_iter, batch in tqdm(
+            enumerate(self.train_loader), total=self.n_iters_per_epoch, desc=f"Epoch [{epoch}] (meta-train)"
+        ):
             # data loading time per batch
             tracker.update('data_time', time.time() - start)
 
@@ -72,26 +79,27 @@ class GBMLTrainer:
 
             # log training status
             if self.logger is not None:
-                self.logger.log(tracker.metrics, epoch + 1, batch_id + 1)
+                self.logger.log(tracker.metrics, epoch, i_iter + 1)
 
-            if (batch_id + 1) >= self.n_batches:
+            if (i_iter + 1) >= self.n_iters_per_epoch:
                 break
 
-        return tracker('accuracy').mean()
+        return tracker.metrics['accuracy'].mean()
 
 
     def test(self, epoch: int):
         """
-        Meta-test/validate for an epoch.
+        Meta-test an epoch.
         """
-
         tracker = MetricTracker('batch_time', 'data_time', 'loss', 'accuracy')
 
         # reset the start time
         start = time.time()
 
-        # validation loop
-        for batch_id, batch in enumerate(self.val_loader):
+        # meta-test loop
+        for i_iter, batch in tqdm(
+            enumerate(self.val_loader), total=self.n_iters_test, desc=f"Epoch [{epoch}] (meta-test)"
+        ):
             # data loading time per batch
             tracker.update('data_time', time.time() - start)
 
@@ -110,12 +118,12 @@ class GBMLTrainer:
 
             # print test status
             if self.logger is not None:
-                self.logger.log(tracker.metrics, epoch + 1, batch_id + 1)
+                self.logger.log(tracker.metrics, epoch, i_iter + 1)
 
-            if (batch_id + 1) >= self.n_batches:
+            if (i_iter + 1) >= self.n_iters_test:
                 break
 
-        return tracker('accuracy').mean()
+        return tracker.metrics['accuracy'].mean()
 
     def run_train(self):
         """
@@ -123,11 +131,11 @@ class GBMLTrainer:
         """
         best_acc = 0.
 
-        for epoch in range(self.n_epoches):
+        for epoch in range(1, self.n_epoches + 1):
             # meta-train an epoch
             recent_acc = self.train(epoch)
 
-            # meta-validate an epoch, get the average accuracy over all batches
+            # meta-test an epoch, get the average accuracy over all batches
             if self.val_loader is not None:
                 recent_acc = self.test(epoch)
 

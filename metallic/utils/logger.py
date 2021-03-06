@@ -13,7 +13,7 @@ class Logger:
 
     Args:
         root (str): Root directory of the log files
-        n_batches (str): Number of batches in an epoch
+        n_iters_per_epoch (int): Number of the iterations per epoch
         log_basename (str, optional, default=''): Base name of the log file
         log_interval (int, optional, default=100): Log interval
         tensorboard (bool, optional, default=True): Enable tensorboard or not
@@ -22,7 +22,7 @@ class Logger:
     def __init__(
         self,
         root: str,
-        n_batches: int,
+        n_iters_per_epoch: int,
         log_basename: str = '',
         log_interval: int = 100,
         tensorboard: bool = True
@@ -37,7 +37,7 @@ class Logger:
             self.mkdir(self.tensorboard_path)
             self.writter = SummaryWriter(self.tensorboard_path)
 
-        self.n_batches = n_batches
+        self.n_iters_per_epoch = n_iters_per_epoch
         self.log_interval = log_interval
         self.log_basename = log_basename
 
@@ -75,17 +75,19 @@ class Logger:
         with open(log_file_path, "a") as f:
             f.write(text)
 
-    def log(self, data: dict, epoch: int, batch_id: int) -> None:
+    def log(self, data: dict, epoch: int, i_iter: int) -> None:
         """
         Log statistics generated during updating.
 
         Args:
             data (dict): Data to be logged
             epoch (int): Epoch of the data to be logged
-            batch_id (int): Iteration of the data to be logged
+            i_iter (int): Iteration of the data to be logged
         """
-        text = 'Epoch: [{0}][{1}/{2}]\t'.format(epoch, batch_id, self.n_batches)
-        step = (epoch - 1) * self.n_batches + batch_id
+        text = 'Epoch: [{0}][{1}/{2}]\t'.format(
+            epoch, i_iter, self.n_iters_per_epoch
+        )
+        step = (epoch - 1) * self.n_iters_per_epoch + i_iter
 
         if step % self.log_interval == 0:
             for name, value in data.items():

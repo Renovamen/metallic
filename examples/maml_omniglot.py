@@ -19,8 +19,9 @@ K_SHOT = 1
 OUTER_LR = 0.001
 INNER_LR = 0.4
 INNER_STEPS = 1
-N_EPOCHES = 50
-N_BATCHES = 100
+N_EPOCHES = 100
+N_ITERS_PER_EPOCH = 500
+N_ITERS_TEST = 600
 N_WORKERS = 5
 
 def set_trainer():
@@ -48,7 +49,7 @@ def set_trainer():
 
     logger = Logger(
         root = os.path.join(base_path, 'logs'),
-        n_batches = N_BATCHES,
+        n_iters_per_epoch = N_ITERS_PER_EPOCH,
         log_basename = 'MAML'
     )
 
@@ -57,7 +58,8 @@ def set_trainer():
         train_loader = train_loader,
         val_loader = val_loader,
         n_epoches = N_EPOCHES,
-        n_batches = N_BATCHES,
+        n_iters_per_epoch = N_ITERS_PER_EPOCH,
+        n_iters_test = N_ITERS_TEST,
         logger = logger
     )
     return trainer
