@@ -1,5 +1,4 @@
 import os
-import datetime as dt
 import numpy as np
 from numbers import Number
 from typing import Union
@@ -28,20 +27,21 @@ class Logger:
         tensorboard: bool = True
     ) -> None:
         self.root = os.path.expanduser(root)
-
-        self.text_path = os.path.join(self.root, 'text')
-        self.mkdir(self.text_path)
-
-        if tensorboard:
-            self.tensorboard_path = os.path.join(self.root, 'tensorboard')
-            self.mkdir(self.tensorboard_path)
-            self.writter = SummaryWriter(self.tensorboard_path)
+        self.timestamp = get_datetime()
 
         self.n_iters_per_epoch = n_iters_per_epoch
         self.log_interval = log_interval
         self.log_basename = log_basename
 
-        self.timestamp = dt.datetime.now()
+        self.text_path = os.path.join(self.root, 'text')
+        self.mkdir(self.text_path)
+
+        if tensorboard:
+            self.tensorboard_path = os.path.join(
+                self.root, 'tensorboard', self.log_basename + '_' + self.timestamp
+            )
+            self.mkdir(self.tensorboard_path)
+            self.writter = SummaryWriter(self.tensorboard_path)
 
     @staticmethod
     def mkdir(path: str):
@@ -70,7 +70,7 @@ class Logger:
         """
         log_file_path = os.path.join(
             self.text_path,
-            self.log_basename + '_' + get_datetime(self.timestamp) + '.log'
+            self.log_basename + '_' + self.timestamp + '.log'
         )
         with open(log_file_path, "a") as f:
             f.write(text)
