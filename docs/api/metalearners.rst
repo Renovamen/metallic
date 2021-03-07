@@ -14,6 +14,11 @@ metallic.metalearners
    :undoc-members:
    :show-inheritance:
 
+.. autoclass:: Reptile
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 .. autoclass:: GBML
    :members:
    :undoc-members:
