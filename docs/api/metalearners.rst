@@ -9,6 +9,11 @@ metallic.metalearners
    :undoc-members:
    :show-inheritance:
 
+.. autoclass:: FOMAML
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 .. autoclass:: GBML
    :members:
    :undoc-members:

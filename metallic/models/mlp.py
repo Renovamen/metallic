@@ -18,8 +18,10 @@ class OmniglotMLP(nn.Module):
 
     References
     ----------
-    1. "`Meta-Learning with Memory-Augmented Neural Networks. <http://proceedings.mlr.press/v48/santoro16.pdf>`_" Adam Santoro, et al. ICML 2016.
-    2. "`Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks. <https://arxiv.org/abs/1703.03400>`_" Chelsea Finn, et al. ICML 2017.
+    1. "`Meta-Learning with Memory-Augmented Neural Networks. \
+        <http://proceedings.mlr.press/v48/santoro16.pdf>`_" Adam Santoro, et al. ICML 2016.
+    2. "`Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks. \
+        <https://arxiv.org/abs/1703.03400>`_" Chelsea Finn, et al. ICML 2017.
     """
 
     def __init__(self, input_size: int, n_classes: int):

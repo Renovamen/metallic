@@ -4,7 +4,8 @@ import torch
 from torch import nn, optim
 
 from .gbml import GBML
-from .. import utils
+from ._utils import apply_grads
+from ..utils import accuracy
 
 class MAML(GBML):
     """
@@ -24,12 +25,17 @@ class MAML(GBML):
         loss_function (callable, optional): Loss function
         inner_steps (int, optional, defaut=1): Number of gradient descent
             updates in inner loop
+        first_order (bool, optional, default=False): Use the first-order
+            approximation of MAML (FOMAML) or not
         device (optional): Device on which the model is defined
 
     References
     ----------
-    1. "`Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks. <https://arxiv.org/pdf/1703.03400.pdf>`_" Chelsea Finn, et al. ICML 2017.
+    1. "`Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks. \
+        <https://arxiv.org/abs/1703.03400>`_" Chelsea Finn, et al. ICML 2017.
     """
+
+    alg_name = 'MAML'
 
     def __init__(
         self,
@@ -41,10 +47,9 @@ class MAML(GBML):
         lr_scheduler: Optional[Callable] = None,
         loss_function: Optional[Callable] = None,
         inner_steps: int = 1,
+        first_order: bool = False,
         device: Optional = None
     ) -> None:
-        self.alg_name = 'MAML'
-
         if save_basename is None:
             save_basename = self.alg_name
 
@@ -58,6 +63,8 @@ class MAML(GBML):
             inner_steps = inner_steps,
             device = device
         )
+
+        self.first_order = first_order
 
     @torch.enable_grad()
     def inner_loop(self, fmodel, diffopt, train_input, train_target):
@@ -81,6 +88,9 @@ class MAML(GBML):
         # loss and accuracy on query set (outer loop)
         outer_loss, outer_accuracy = 0., 0.
 
+        # record gradients
+        grad_list = []
+
         for task_data in task_batch:
             # input: (n_way × k_shot, channels, img_size, img_size)
             # target: (n_way × k_shot)
@@ -90,7 +100,7 @@ class MAML(GBML):
             # optimizer. So that the model's parameters can be automatically
             # kept copies of as they are being updated.
             with higher.innerloop_ctx(
-                self.model, self.in_optim, copy_initial_weights=False, track_higher_grads=meta_train
+                self.model, self.in_optim, track_higher_grads=(meta_train and (not self.first_order))
             ) as (fmodel, diffopt):
                 # fmodel: stateless version of the model
                 # diffopt: differentiable version of the optimizer
@@ -105,21 +115,22 @@ class MAML(GBML):
                     query_loss /= len(query_input)
 
                 # find accuracy on query set
-                query_accuracy = utils.accuracy(query_output, query_target)
+                query_accuracy = accuracy(query_output, query_target)
 
                 outer_loss += query_loss.detach().item()
                 outer_accuracy += query_accuracy.item()
 
                 # compute gradients when in the meta-training stage
                 if meta_train == True:
-                    query_loss.backward()
+                    # query_loss.backward()
+                    outer_grad = torch.autograd.grad(query_loss / n_tasks, fmodel.parameters(time=0))
+                    grad_list.append(outer_grad)
 
         # When in the meta-training stage, update the model's meta-parameters to
         # optimize the query losses across all of the tasks sampled in this batch.
         if meta_train == True:
-            # average the accumulated gradients
-            for param in self.model.parameters():
-                param.grad.data.div_(n_tasks)
+            # apply gradients to the original model parameters
+            apply_grads(self.model, grad_list[-1])
             # outer loop update
             self.out_optim.step()
 

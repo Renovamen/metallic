@@ -143,8 +143,10 @@ class MiniImageNet(MetaDataset):
 
     References
     ----------
-    1. "`Matching Networks for One Shot Learning. <https://arxiv.org/abs/1606.04080>`_" Oriol Vinyals, et al. NIPS 2016.
-    2. "`Optimization as a Model for Few-Shot Learning. <https://openreview.net/pdf?id=rJY0-Kcll>`_" Sachin Ravi, et al. ICLR 2017.
+    1. "`Matching Networks for One Shot Learning. \
+        <https://arxiv.org/abs/1606.04080>`_" Oriol Vinyals, et al. NIPS 2016.
+    2. "`Optimization as a Model for Few-Shot Learning. \
+        <https://openreview.net/pdf?id=rJY0-Kcll>`_" Sachin Ravi, et al. ICLR 2017.
     """
 
     def __init__(

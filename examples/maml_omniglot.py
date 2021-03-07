@@ -50,7 +50,7 @@ def set_trainer():
     logger = Logger(
         root = os.path.join(base_path, 'logs'),
         n_iters_per_epoch = N_ITERS_PER_EPOCH,
-        log_basename = 'MAML'
+        log_basename = metalearner.alg_name
     )
 
     trainer = GBMLTrainer(

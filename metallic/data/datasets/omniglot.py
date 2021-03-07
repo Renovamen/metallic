@@ -163,8 +163,11 @@ class Omniglot(MetaDataset):
 
     References
     ----------
-    1. "`Human-level Concept Learning through Probabilistic Program Induction. <http://www.sciencemag.org/content/350/6266/1332.short>`_" *Brenden M. Lake, et al.* Science 2015.
-    2. "`Matching Networks for One Shot Learning. <https://arxiv.org/abs/1606.04080>`_" Oriol Vinyals, et al. NIPS 2016.
+    1. "`Human-level Concept Learning through Probabilistic Program Induction. \
+        <http://www.sciencemag.org/content/350/6266/1332.short>`_" \
+        *Brenden M. Lake, et al.* Science 2015.
+    2. "`Matching Networks for One Shot Learning. \
+        <https://arxiv.org/abs/1606.04080>`_" Oriol Vinyals, et al. NIPS 2016.
     """
 
     def __init__(
