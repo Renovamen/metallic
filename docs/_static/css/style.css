@@ -17,3 +17,12 @@ html.writer-html5 .rst-content dl.field-list > dt {
     padding-right: 100px;
     margin-bottom: 8px;
 }
+
+.rst-content .admonition-references {
+    background: #f3f4f7;
+}
+
+.rst-content .admonition-references .admonition-title {
+    background: #b872b8;
+}
+

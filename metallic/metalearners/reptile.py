@@ -27,10 +27,10 @@ class Reptile(GBML):
             updates in inner loop
         device (optional): Device on which the model is defined
 
-    References
-    ----------
-    1. "`On First-Order Meta-Learning Algorithms. <https://arxiv.org/abs/1803.02999>`_" \
-        Alex Nichol, et al. arxiv 2018.
+    .. admonition:: References
+
+        1. "`On First-Order Meta-Learning Algorithms. <https://arxiv.org/abs/1803.02999>`_" \
+            Alex Nichol, et al. arxiv 2018.
     """
 
     alg_name = 'Reptile'

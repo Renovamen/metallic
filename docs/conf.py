@@ -18,7 +18,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import metallic
 
-version = metallic.version.__version__
+version = metallic.__version__
 
 # -- Project information -----------------------------------------------------
 

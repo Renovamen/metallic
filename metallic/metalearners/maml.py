@@ -29,10 +29,10 @@ class MAML(GBML):
             approximation of MAML (FOMAML) or not
         device (optional): Device on which the model is defined
 
-    References
-    ----------
-    1. "`Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks. \
-        <https://arxiv.org/abs/1703.03400>`_" Chelsea Finn, et al. ICML 2017.
+    .. admonition:: References
+
+        1. "`Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks. \
+            <https://arxiv.org/abs/1703.03400>`_" Chelsea Finn, et al. ICML 2017.
     """
 
     alg_name = 'MAML'

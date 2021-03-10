@@ -16,12 +16,12 @@ class OmniglotMLP(nn.Module):
         n_classes (int): Size of the network's output. This corresponds to
             ``N`` in ``N-way`` classification.
 
-    References
-    ----------
-    1. "`Meta-Learning with Memory-Augmented Neural Networks. \
-        <http://proceedings.mlr.press/v48/santoro16.pdf>`_" Adam Santoro, et al. ICML 2016.
-    2. "`Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks. \
-        <https://arxiv.org/abs/1703.03400>`_" Chelsea Finn, et al. ICML 2017.
+    .. admonition:: References
+
+        1. "`Meta-Learning with Memory-Augmented Neural Networks. \
+            <http://proceedings.mlr.press/v48/santoro16.pdf>`_" Adam Santoro, et al. ICML 2016.
+        2. "`Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks. \
+            <https://arxiv.org/abs/1703.03400>`_" Chelsea Finn, et al. ICML 2017.
     """
 
     def __init__(self, input_size: int, n_classes: int):
