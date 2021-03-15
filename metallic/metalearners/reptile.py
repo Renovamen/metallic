@@ -57,6 +57,7 @@ class Reptile(GBML):
             root = root,
             save_basename = save_basename,
             lr_scheduler = lr_scheduler,
+            loss_function = loss_function,
             inner_steps = inner_steps,
             device = device
         )

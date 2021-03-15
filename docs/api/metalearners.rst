@@ -19,6 +19,11 @@ metallic.metalearners
    :undoc-members:
    :show-inheritance:
 
+.. autoclass:: MinibatchProx
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 .. autoclass:: GBML
    :members:
    :undoc-members:

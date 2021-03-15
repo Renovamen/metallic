@@ -29,7 +29,7 @@ class GBML(ABC):
         root: Optional[str] = None,
         save_basename: Optional[str] = None,
         lr_scheduler: Optional[Callable] = None,
-        loss_function: Optional[Callable] = nn.CrossEntropyLoss(),
+        loss_function: Optional[Callable] = None,
         inner_steps: int = 1,
         device: Optional = None
     ) -> None:
@@ -46,6 +46,8 @@ class GBML(ABC):
         self.lr_scheduler = lr_scheduler
         self.inner_steps = inner_steps
 
+        if loss_function is None:
+            loss_function = nn.CrossEntropyLoss()
         self.loss_function = loss_function
 
     def get_tasks(self, batch: dict) -> tuple:
