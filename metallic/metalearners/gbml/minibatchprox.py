@@ -4,16 +4,16 @@ import higher
 import torch
 from torch import nn, optim
 
-from .gbml import GBML
-from ._utils import apply_grads
-from ..utils import accuracy
+from .base import GBML
+from .utils import apply_grads
+from ...utils import accuracy, ProximalRegLoss
 
-class Reptile(GBML):
+class MinibatchProx(GBML):
     """
-    Implementation of Reptile algorithm proposed in [1].
+    Implementation of MinibatchProx algorithm proposed in [1].
 
-    `Here <https://github.com/openai/supervised-reptile>`_ is the official
-    implementation of Reptile based on Tensorflow.
+    `Here <https://panzhous.github.io/assets/code/MetaMinibatchProx.zip>`_ is
+    the official implementation of MinibatchProx based on Tensorflow.
 
     Args:
         model (torch.nn.Module): Model to be wrapped
@@ -25,15 +25,18 @@ class Reptile(GBML):
         loss_function (callable, optional): Loss function
         inner_steps (int, optional, defaut=1): Number of gradient descent
             updates in inner loop
+        lamb (float, optional, float=0.1): Regularization strength of the inner
+            level proximal regularization
         device (optional): Device on which the model is defined
 
     .. admonition:: References
 
-        1. "`On First-Order Meta-Learning Algorithms. <https://arxiv.org/abs/1803.02999>`_" \
-            Alex Nichol, et al. arxiv 2018.
+        1. "`Efficient Meta Learning via Minibatch Proximal Update. \
+            <https://panzhous.github.io/assets/pdf/2019-NIPS-metaleanring.pdf>`_" \
+            Pan Zhou, et al. NIPS 2019.
     """
 
-    alg_name = 'Reptile'
+    alg_name = 'MinibatchProx'
 
     def __init__(
         self,
@@ -45,12 +48,13 @@ class Reptile(GBML):
         lr_scheduler: Optional[Callable] = None,
         loss_function: Optional[Callable] = None,
         inner_steps: int = 5,
+        lamb: float = 0.1,
         device: Optional = None
     ) -> None:
         if save_basename is None:
             save_basename = self.alg_name
 
-        super(Reptile, self).__init__(
+        super(MinibatchProx, self).__init__(
             model = model,
             in_optim = in_optim,
             out_optim = out_optim,
@@ -62,12 +66,19 @@ class Reptile(GBML):
             device = device
         )
 
+        self.reg_loss_function = ProximalRegLoss(self.loss_function, lamb)
+
     @torch.enable_grad()
-    def inner_loop(self, fmodel, diffopt, train_input, train_target) -> None:
+    def inner_loop(
+        self, fmodel, diffopt, train_input, train_target, init_params
+    ) -> None:
         """Inner loop update."""
         for step in range(self.inner_steps):
             train_output = fmodel(train_input)
-            support_loss = self.loss_function(train_output, train_target)
+            params = list(fmodel.parameters())  # model-parameters
+            support_loss = self.reg_loss_function(
+                train_output, train_target, init_params, params
+            )
             diffopt.step(support_loss)
 
     def outer_loop(self, batch: dict, meta_train: bool = True) -> Tuple[float]:
@@ -86,8 +97,14 @@ class Reptile(GBML):
             with higher.innerloop_ctx(
                 self.model, self.in_optim, track_higher_grads=False
             ) as (fmodel, diffopt):
+                # record meta-parameters
+                init_params = [
+                    p.detach().clone().requires_grad_(True)
+                    for p in fmodel.parameters()
+                ]
+
                 # inner loop (adapt)
-                self.inner_loop(fmodel, diffopt, support_input, support_target)
+                self.inner_loop(fmodel, diffopt, support_input, support_target, init_params)
 
                 # evaluate on the query set
                 with torch.set_grad_enabled(meta_train):

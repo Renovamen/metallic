@@ -1,8 +1,11 @@
 metallic.metalearners
-=======================
+==============================
 
 .. automodule:: metallic.metalearners
 
+
+Gradient-Based Meta-Learning
+------------------------------
 
 .. autoclass:: MAML
    :members:
@@ -28,3 +31,7 @@ metallic.metalearners
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+Metric-Based Meta-Learning
+------------------------------

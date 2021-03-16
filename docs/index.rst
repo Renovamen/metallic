@@ -6,7 +6,7 @@ Metallic
 Different from other meta-learning libraries, Metallic tries to:
 
 - Provide a clean, lightweight and modularized toolbox for setting up meta-learning experiments quickly with the least amount of code.
-- Support more optimizers instead of SGD only using `higher <https://github.com/facebookresearch/higher>`_.
+- For gradient-based meta-learning methods (like MAML), support more optimizers instead of SGD only using `higher <https://github.com/facebookresearch/higher>`_.
 
 The library is **work in progress**.
 
