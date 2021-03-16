@@ -18,7 +18,8 @@ class GBML(ABC):
         loss_function (callable, optional): Loss function
         inner_steps (int, optional, defaut=1): Number of gradient descent
             updates in inner loop
-        device (optional): Device on which the model is defined
+        device (optional): Device on which the model is defined. If `None`,
+            device will be detected automatically.
     """
 
     def __init__(
@@ -33,6 +34,8 @@ class GBML(ABC):
         inner_steps: int = 1,
         device: Optional = None
     ) -> None:
+        if device is None:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.device = device
 
         self.model = model.to(device)
