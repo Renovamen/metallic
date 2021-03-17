@@ -153,3 +153,7 @@ class GBMLTrainer:
                         'best_{0}shot_{1}way_'.format(self.n_way, self.k_shot)
                     )
                     print('Saved the current best checkpoint to: {0}.'.format(best_path))
+
+            # schedule learning rate
+            if self.metalearner.lr_scheduler:
+                self.metalearner.lr_schedule()

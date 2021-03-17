@@ -3,6 +3,14 @@ from collections import OrderedDict
 import torch
 from torch import nn
 
+class Flatten(torch.nn.Module):
+    """
+    Flatten input tensor to `(batch_size, -1)` shape.
+    """
+    def forward(self, x: torch.Tensor):
+        return x.view(x.size(0), -1)
+
+
 class ConvBlock(nn.Module):
     """
     A base convolutional block.
