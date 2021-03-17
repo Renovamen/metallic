@@ -54,6 +54,9 @@ class MinibatchProx(GBML):
         if save_basename is None:
             save_basename = self.alg_name
 
+        for g in out_optim.param_groups:
+            g['lr'] = g['lr'] * lamb
+
         super(MinibatchProx, self).__init__(
             model = model,
             in_optim = in_optim,
