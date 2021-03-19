@@ -1,11 +1,11 @@
-from typing import Union, Tuple
+from typing import Union, Tuple, Optional
 from collections import OrderedDict
 import torch
 from torch import nn
 
 class Flatten(torch.nn.Module):
     """
-    Flatten input tensor to `(batch_size, -1)` shape.
+    Flatten input tensor to ``(batch_size, -1)`` shape.
     """
     def forward(self, x: torch.Tensor):
         return x.view(x.size(0), -1)
@@ -21,13 +21,9 @@ class ConvBlock(nn.Module):
         kernel_size (int or tuple, optional, default=3): Size of the
             convolving kernel
         stride (int or tuple, optional, default=1): Stride of the convolution
-        pool (bool, optional, default=True): Use max pooling or not
-        pool_kernel_size (int or tuple, optional, default=2): `kernel_size` of
-            the max pooling layer. Only make sense when `pool = True`
-
-    NOTE:
-        - OmniglotCNN: 3 × 3 conv + batch norm + ReLU
-        - MiniImagenetCNN: 3 × 3 conv + batch norm + ReLU + 2 × 2 max-pooling
+        pool_kernel_size (int or tuple, optional, default=2): ``kernel_size`` of
+            the max pooling layer.
+        dropout (float, optional): dropout, ``None`` if no dropout layer
     """
 
     def __init__(
@@ -36,8 +32,8 @@ class ConvBlock(nn.Module):
         out_channels: int,
         kernel_size: Union[int, Tuple[int]] = 3,
         stride: Union[int, Tuple[int]] = 1,
-        pool: bool = True,
-        pool_kernel_size: Union[int, Tuple[int]] = 2
+        pool_kernel_size: Union[int, Tuple[int]] = 2,
+        dropout: Optional[float] = None
     ):
         super(ConvBlock, self).__init__()
 
@@ -51,13 +47,12 @@ class ConvBlock(nn.Module):
                 bias = True
             ),  # (batch_size, out_channels, img_size, img_size)
             nn.BatchNorm2d(out_channels),
+            nn.MaxPool2d(pool_kernel_size),  # (batch_size, out_channels, img_size / 2, img_size / 2)
             nn.ReLU()
         ]
 
-        if pool:
-            module_list.append(
-                nn.MaxPool2d(kernel_size = pool_kernel_size)
-            )  # (batch_size, out_channels, img_size / 2, img_size / 2)
+        if dropout:
+            module_list.append(nn.Dropout(dropout))
 
         self.core = nn.Sequential(*module_list)
         self.init_weights()
@@ -86,9 +81,9 @@ class ConvGroup(nn.Module):
         kernel_size (int or tuple, optional, default=3): Size of the
             convolving kernel
         stride (int or tuple, optional, default=1): Stride of the convolution
-        pool (bool, optional, default=True): Use max pooling or not
-        pool_kernel_size (int or tuple, optional, default=2): `kernel_size` of
-            the max pooling layer. Only make sense when `pool = True`
+        pool_kernel_size (int or tuple, optional, default=2): ``kernel_size`` of
+            the max pooling layer.
+        dropout (float, optional): dropout, ``None`` if no dropout layer
         layers (int, optional, default=4): Number of convolutional layers
 
     NOTE:
@@ -102,8 +97,8 @@ class ConvGroup(nn.Module):
         hidden_size: int = 64,
         kernel_size: Union[int, Tuple[int]] = 3,
         stride: Union[int, Tuple[int]] = 1,
-        pool: bool = True,
         pool_kernel_size: Union[int, Tuple[int]] = 2,
+        dropout: Optional[float] = None,
         layers: int = 4
     ):
         super(ConvGroup, self).__init__()
@@ -114,8 +109,8 @@ class ConvGroup(nn.Module):
                 out_channels = hidden_size,
                 kernel_size = kernel_size,
                 stride = stride,
-                pool = pool,
-                pool_kernel_size = pool_kernel_size
+                pool_kernel_size = pool_kernel_size,
+                dropout = dropout
             )
         ]
 
@@ -126,8 +121,8 @@ class ConvGroup(nn.Module):
                     out_channels = hidden_size,
                     kernel_size = kernel_size,
                     stride = stride,
-                    pool = pool,
                     pool_kernel_size = pool_kernel_size,
+                    dropout = dropout
                 )
             )
 

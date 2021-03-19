@@ -4,7 +4,9 @@ from typing import Callable, Optional
 import torch
 from torch import nn, optim
 
-class GBML(ABC):
+from ..base import MetaLearner
+
+class GBML(MetaLearner, ABC):
     """
     A base class for gradient-based meta-learning algorithms.
 
@@ -34,43 +36,18 @@ class GBML(ABC):
         inner_steps: int = 1,
         device: Optional = None
     ) -> None:
-        if device is None:
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.device = device
-
-        self.model = model.to(device)
-        self.model.train()
-
-        self.root = os.path.expanduser(root)
-        self.save_basename = save_basename
+        super(GBML, self).__init__(
+            model = model,
+            root = root,
+            save_basename = save_basename,
+            lr_scheduler = lr_scheduler,
+            loss_function = loss_function,
+            device = device
+        )
 
         self.in_optim = in_optim
         self.out_optim = out_optim
-        self.lr_scheduler = lr_scheduler
         self.inner_steps = inner_steps
-
-        if loss_function is None:
-            loss_function = nn.CrossEntropyLoss()
-        self.loss_function = loss_function
-
-    def get_tasks(self, batch: dict) -> tuple:
-        # support set
-        support_inputs, support_targets = batch['support']
-        support_inputs = support_inputs.to(self.device)
-        support_targets = support_targets.to(self.device)
-
-        # query set
-        query_inputs, query_targets = batch['query']
-        query_inputs = query_inputs.to(self.device)
-        query_targets = query_targets.to(self.device)
-
-        # number of tasks
-        n_tasks = query_targets.size(0)
-
-        task_batch = zip(
-            support_inputs, support_targets, query_inputs, query_targets
-        )
-        return task_batch, n_tasks
 
     @abstractmethod
     def inner_loop(self) -> None:
@@ -81,10 +58,6 @@ class GBML(ABC):
     def outer_loop(self):
         """Outer loop update."""
         pass
-
-    def lr_schedule(self) -> None:
-        """Schedule learning rate."""
-        self.lr_scheduler.step()
 
     @classmethod
     def load(cls, model_path: str, **kwargs):
@@ -99,7 +72,7 @@ class GBML(ABC):
         # model name and save path
         if 'root' not in kwargs:
             kwargs['root'] = os.path.dirname(model_path)
-        if 'save_basename' not in  kwargs:
+        if 'save_basename' not in kwargs:
             kwargs['save_basename'] = os.path.basename(model_path)
 
         return cls(**kwargs)

@@ -4,8 +4,19 @@ metallic.metalearners
 .. automodule:: metallic.metalearners
 
 
+.. autoclass:: MetaLearner
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Gradient-Based Meta-Learning
 ------------------------------
+
+.. autoclass:: GBML
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 .. autoclass:: MAML
    :members:
@@ -23,11 +34,6 @@ Gradient-Based Meta-Learning
    :show-inheritance:
 
 .. autoclass:: MinibatchProx
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. autoclass:: GBML
    :members:
    :undoc-members:
    :show-inheritance:

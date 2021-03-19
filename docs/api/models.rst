@@ -46,3 +46,8 @@ Base
    :members:
    :undoc-members:
    :show-inheritance:
+
+.. autoclass:: Flatten
+   :members:
+   :undoc-members:
+   :show-inheritance:

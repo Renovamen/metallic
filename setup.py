@@ -19,7 +19,7 @@ setup(
     name = 'metallic',
     version = __version__,
     packages = find_packages(),
-    description = 'A clean PyTorch meta-learning library.',
+    description = 'A clean, lightweight and modularized PyTorch meta-learning library.',
     long_description = readme(),
     long_description_content_type = 'text/markdown',
     keywords=['pytorch', 'meta-learning', 'few-shot learning'],

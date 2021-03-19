@@ -1,3 +1,2 @@
-from .base import *
-from .cnn import *
-from .mlp import *
+from .modules import *
+from .simple import *
