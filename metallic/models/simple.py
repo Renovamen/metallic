@@ -52,14 +52,14 @@ class OmniglotCNN(nn.Module):
                 img_size = 28, img_size = 28)
 
         Returns:
-            - ``n_classes`` is not None: Class scores (batch_size, n_classes)
-            - ``n_classes`` is None: Features (batch_size, 64)
+            if ``n_classes`` is not None, return class scores (batch_size, n_classes),
+            or return embedded features (batch_size, 64).
         """
         features = self.encoder(x)  # (batch_size, 64, 28 / 16 = 1, 28 / 16 = 1)
-        features = self.flatten(features)  # (batch_size, 64)
+        output = self.flatten(features)  # (batch_size, 64)
 
         if self.n_classes:
-            output = self.classifier(features)  # (batch_size, n_classes)
+            output = self.classifier(output)  # (batch_size, n_classes)
 
         return output
 
@@ -113,14 +113,14 @@ class MiniImagenetCNN(nn.Module):
                 img_size = 84, img_size = 84)
 
         Returns:
-            - ``n_classes`` is not None: Class scores (batch_size, n_classes)
-            - ``n_classes`` is None: Features (batch_size, 800)
+            if ``n_classes`` is not None, return class scores (batch_size, n_classes),
+            or return embedded features (batch_size, 800).
         """
         features = self.encoder(x)  # (batch_size, 32, 84 / 16 = 5, 84 / 16 = 5)
-        features = self.flatten(features)  # (batch_size, 32 × 5 × 5 = 800)
+        output = self.flatten(features)  # (batch_size, 32 × 5 × 5 = 800)
 
         if self.n_classes:
-            output = self.classifier(features)  # (batch_size, n_classes)
+            output = self.classifier(output)  # (batch_size, n_classes)
 
         return output
 

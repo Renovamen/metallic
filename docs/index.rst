@@ -1,7 +1,7 @@
 Metallic
 ========
 
-`Metallic <https://github.com/Renovamen/metallic>`_ is a library for meta-learning research based on `PyTorch <https://github.com/pytorch/pytorch>`_.
+`Metallic <https://github.com/Renovamen/metallic>`_ is a meta-learning library based on `PyTorch <https://github.com/pytorch/pytorch>`_.
 
 Different from other meta-learning libraries, Metallic tries to:
 
@@ -45,6 +45,7 @@ https://github.com/Renovamen/metallic
    api/models
    api/metalearners
    api/trainer
+   api/functional
    api/utils
 
 

@@ -41,3 +41,8 @@ Gradient-Based Meta-Learning
 
 Metric-Based Meta-Learning
 ------------------------------
+
+.. autoclass:: ProtoNet
+    :members:
+    :undoc-members:
+    :show-inheritance:

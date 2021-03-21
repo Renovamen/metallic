@@ -4,15 +4,6 @@ metallic.utils
 .. automodule:: metallic.utils
 
 
-Loss Functions
------------------------
-
-.. autoclass:: ProximalRegLoss
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
 Logger
 -----------------------
 
@@ -30,4 +21,4 @@ Metrics
    :undoc-members:
    :show-inheritance:
 
-.. autofunction:: accuracy
+.. autofunction:: get_accuracy

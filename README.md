@@ -1,6 +1,6 @@
 # Metallic
 
-Metallic is a library for meta-learning research based on [PyTorch](https://github.com/pytorch/pytorch).
+Metallic is a meta-learning library based on [PyTorch](https://github.com/pytorch/pytorch).
 
 Different from other meta-learning libraries, Metallic tries to:
 

@@ -3,7 +3,7 @@ metallic.trainer
 
 .. automodule:: metallic.trainer
 
-.. autoclass:: GBMLTrainer
+.. autoclass:: Trainer
    :members:
    :undoc-members:
    :show-inheritance:

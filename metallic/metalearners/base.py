@@ -32,7 +32,6 @@ class MetaLearner(ABC):
         self.device = device
 
         self.model = model.to(device)
-        self.model.train()
 
         self.root = os.path.expanduser(root)
         self.save_basename = save_basename

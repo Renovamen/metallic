@@ -5,8 +5,8 @@ import torch
 from torch import nn, optim
 
 from .base import GBML
-from .utils import apply_grads
-from ...utils import accuracy, ProximalRegLoss
+from ...utils import get_accuracy
+from ...functional import apply_grads, ProximalRegLoss
 
 class MinibatchProx(GBML):
     """
@@ -84,7 +84,7 @@ class MinibatchProx(GBML):
             )
             diffopt.step(support_loss)
 
-    def outer_loop(self, batch: dict, meta_train: bool = True) -> Tuple[float]:
+    def step(self, batch: dict, meta_train: bool = True) -> Tuple[float]:
         """Outer loop update."""
 
         self.out_optim.zero_grad()
@@ -116,7 +116,7 @@ class MinibatchProx(GBML):
                     query_loss /= len(query_input)
 
                 # find accuracy on query set
-                query_accuracy = accuracy(query_output, query_target)
+                query_accuracy = get_accuracy(query_output, query_target)
 
                 outer_loss += query_loss.detach().item()
                 outer_accuracy += query_accuracy.item()

@@ -3,7 +3,7 @@ from collections import OrderedDict
 import numpy as np
 import torch
 
-def accuracy(scores: torch.Tensor, targets: torch.Tensor) -> float:
+def get_accuracy(scores: torch.Tensor, targets: torch.Tensor) -> float:
     """Compute accuracy using predicted scores and targets."""
     _, predictions = scores.max(dim = 1)  # (n_samples)
     correct_predictions = torch.eq(predictions, targets).sum().float()

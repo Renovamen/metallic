@@ -75,7 +75,7 @@ class Logger:
         with open(log_file_path, "a") as f:
             f.write(text)
 
-    def log(self, data: dict, epoch: int, i_iter: int) -> None:
+    def log(self, data: dict, epoch: int, i_iter: int, stage: str) -> None:
         """
         Log statistics generated during updating.
 
@@ -83,9 +83,10 @@ class Logger:
             data (dict): Data to be logged
             epoch (int): Epoch of the data to be logged
             i_iter (int): Iteration of the data to be logged
+            stage (str): Name of the current stage
         """
-        text = 'Epoch: [{0}][{1}/{2}]\t'.format(
-            epoch, i_iter, self.n_iters_per_epoch
+        text = 'Epoch ({stage}): [{0}][{1}/{2}]\t'.format(
+            epoch, i_iter, self.n_iters_per_epoch, stage=stage
         )
         step = (epoch - 1) * self.n_iters_per_epoch + i_iter
 
