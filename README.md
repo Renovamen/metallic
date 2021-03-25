@@ -12,6 +12,34 @@ The library is **work in progress**.
 
 &nbsp;
 
+## Features
+
+### Algorithms
+
+The supported interface algorithms currently include:
+
+#### Gradient-based
+
+- [Model-Agnostic Meta-Learning (MAML)](https://arxiv.org/abs/1703.03400), including first-order version
+- [Reptile](https://arxiv.org/abs/1803.02999)
+- [Minibatch Proximal Update](https://panzhous.github.io/assets/pdf/2019-NIPS-metaleanring.pdf)
+
+#### Metric-based
+
+- [Matching Networks](https://arxiv.org/abs/1606.04080)
+- [Prototypical Networks](https://arxiv.org/abs/1703.05175)
+
+
+### Datasets
+
+The supported datasets currently include:
+
+- [Omniglot](https://science.sciencemag.org/content/350/6266/1332)
+- [Mini-ImageNet](https://arxiv.org/abs/1606.04080)
+
+
+&nbsp;
+
 ## Installation
 
 ```bash
