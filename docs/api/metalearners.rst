@@ -46,3 +46,8 @@ Metric-Based Meta-Learning
     :members:
     :undoc-members:
     :show-inheritance:
+
+.. autoclass:: MatchNet
+    :members:
+    :undoc-members:
+    :show-inheritance:

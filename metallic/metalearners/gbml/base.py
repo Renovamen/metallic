@@ -56,11 +56,6 @@ class GBML(MetaLearner, ABC):
         """Inner loop update."""
         pass
 
-    @abstractmethod
-    def step(self, batch: dict, meta_train: bool = True) -> Tuple[float]:
-        """Outer loop update."""
-        pass
-
     @classmethod
     def load(cls, model_path: str, **kwargs):
         """Load a trained model."""

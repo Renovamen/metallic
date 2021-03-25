@@ -1,6 +1,6 @@
 import os
 from abc import ABC, abstractmethod
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 import torch
 from torch import nn, optim
 
@@ -74,4 +74,8 @@ class MetaLearner(ABC):
     @abstractmethod
     def save(self, prefix: Optional[str] = None) -> str:
         """Save the trained model."""
+        pass
+
+    @abstractmethod
+    def step(self, batch: dict, meta_train: bool = True) -> Tuple[float]:
         pass

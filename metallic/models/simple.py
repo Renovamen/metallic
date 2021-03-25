@@ -25,7 +25,7 @@ class OmniglotCNN(nn.Module):
             Oriol Vinyals, et al. NIPS 2016.
     """
 
-    def __init__(self, n_classes: Optional[int] = None):
+    def __init__(self, n_classes: Optional[int] = None) -> None:
         super(OmniglotCNN, self).__init__()
 
         self.hidden_size = 64
@@ -41,19 +41,20 @@ class OmniglotCNN(nn.Module):
             self.classifier = nn.Linear(self.hidden_size, n_classes)
             self.init_weights()
 
-    def init_weights(self):
+    def init_weights(self) -> None:
         self.classifier.weight.data.normal_()
         self.classifier.bias.data.mul_(0.0)
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Args:
             x (torch.Tensor): Input data (batch_size, in_channels = 1,
                 img_size = 28, img_size = 28)
 
         Returns:
-            if ``n_classes`` is not None, return class scores (batch_size, n_classes),
-            or return embedded features (batch_size, 64).
+            output (torch.Tensor): If ``n_classes`` is not None, return class \
+            scores ``(batch_size, n_classes)``, or return embedded features \
+            ``(batch_size, 64)``.
         """
         features = self.encoder(x)  # (batch_size, 64, 28 / 16 = 1, 28 / 16 = 1)
         output = self.flatten(features)  # (batch_size, 64)
@@ -86,7 +87,7 @@ class MiniImagenetCNN(nn.Module):
             <https://openreview.net/pdf?id=rJY0-Kcll>`_" Sachin Ravi, et al. ICLR 2017.
     """
 
-    def __init__(self, n_classes: Optional[int] = None):
+    def __init__(self, n_classes: Optional[int] = None) -> None:
         super(OmniglotCNN, self).__init__()
 
         self.hidden_size = 32
@@ -102,19 +103,20 @@ class MiniImagenetCNN(nn.Module):
             self.classifier = nn.Linear(5 * 5 * self.hidden_size, n_classes)
             self.init_weights()
 
-    def init_weights(self):
+    def init_weights(self) -> None:
         self.classifier.weight.data.normal_()
         self.classifier.bias.data.mul_(0.0)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Args:
             x (torch.Tensor): Input data (batch_size, in_channels = 3,
                 img_size = 84, img_size = 84)
 
         Returns:
-            if ``n_classes`` is not None, return class scores (batch_size, n_classes),
-            or return embedded features (batch_size, 800).
+            output (torch.Tensor): If ``n_classes`` is not None, return class \
+            scores ``(batch_size, n_classes)``, or return embedded features \
+            ``(batch_size, 800)``.
         """
         features = self.encoder(x)  # (batch_size, 32, 84 / 16 = 5, 84 / 16 = 5)
         output = self.flatten(features)  # (batch_size, 32 × 5 × 5 = 800)
@@ -145,7 +147,7 @@ class OmniglotMLP(nn.Module):
             <http://proceedings.mlr.press/v48/santoro16.pdf>`_" Adam Santoro, et al. ICML 2016.
     """
 
-    def __init__(self, input_size: int, n_classes: int):
+    def __init__(self, input_size: int, n_classes: int) -> None:
         super(OmniglotMLP, self).__init__()
 
         linear_sizes = [input_size, 256, 128, 64, 64]
@@ -158,11 +160,11 @@ class OmniglotMLP(nn.Module):
         self.flatten = Flatten()
         self.init_weights()
 
-    def init_weights(self):
+    def init_weights(self) -> None:
         self.classifier.weight.data.normal_()
         self.classifier.bias.data.mul_(0.0)
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.flatten(x)
         features = self.encoder(x)
         output = self.classifier(features)

@@ -21,6 +21,8 @@ class ProtoNet(MBML):
         save_basename (str, optional): Base name of the saved checkpoints
         lr_scheduler (callable, optional): Learning rate scheduler
         loss_function (callable, optional): Loss function
+        distance (str, optional, default='euclidean'): Type of distance function
+            to be used for computing similarity.
         device (optional): Device on which the model is defined. If `None`,
             device will be detected automatically.
 
@@ -58,42 +60,20 @@ class ProtoNet(MBML):
 
         self.get_distance = get_distance_function(distance)
 
-    def step(self, batch: dict, meta_train: bool = True) -> Tuple[float]:
-        if meta_train:
-            self.model.train()
-        else:
-            self.model.eval()
+    def single_task(
+        self, task: Tuple[torch.Tensor], meta_train: bool = True
+    ) -> Tuple[float]:
+        support_input, support_target, query_input, query_target = task
 
-        task_batch, n_tasks = self.get_tasks(batch)
-        losses, accuracies = 0., 0.
+        with torch.set_grad_enabled(meta_train):
+            support_embeddings = self.model(support_input)
+            query_embeddings = self.model(query_input)
 
-        self.optim.zero_grad()
+            prototypes = get_prototypes(support_embeddings, support_target)
+            distance = self.get_distance(prototypes, query_embeddings)  # (n_query_samples, n_way)
+            loss = self.loss_function(-distance, query_target)
 
-        for task_data in task_batch:
-            # input: (n_way × k_shot, channels, img_size, img_size)
-            # target: (n_way × k_shot)
-            support_input, support_target, query_input, query_target = task_data
+        with torch.no_grad():
+            accuracy = get_accuracy(-distance, query_target)
 
-            with torch.set_grad_enabled(meta_train):
-                support_embeddings = self.model(support_input)
-                query_embeddings = self.model(query_input)
-
-                prototypes = get_prototypes(support_embeddings, support_target)
-                distance = self.get_distance(prototypes, query_embeddings)  # (n_samples, n_way)
-                loss = self.loss_function(-distance, query_target)
-
-            with torch.no_grad():
-                accuracy = get_accuracy(-distance, query_target)
-
-            losses += loss.detach().item()
-            accuracies += accuracy.item()
-
-            if meta_train == True:
-                (loss / n_tasks).backward()
-                self.optim.step()
-
-        # average the losses and accuracies
-        losses /= n_tasks
-        accuracies /= n_tasks
-
-        return losses, accuracies
+        return loss, accuracy

@@ -14,7 +14,7 @@ def get_prototypes(
             ``(n_samples)``
 
     Returns:
-        prototypes (torch.FloatTensor): Prototypes for each class, with shape
+        prototypes (torch.FloatTensor): Prototypes for each class, with shape \
             ``(n_way, embed_dim)``.
     """
 
@@ -22,13 +22,8 @@ def get_prototypes(
     k_shot = targets.size(0) // n_way  # number of samples per class
     embed_dim = inputs.size(-1)  # embedding size
 
-    prototypes = torch.zeros(
-        n_way, embed_dim,
-        device = inputs.device,
-        dtype = inputs.dtype,
-    )  # (n_way, embed_dim)
-
     indices = targets.unsqueeze(-1).expand_as(inputs)  # (n_samples, embed_dim)
+    prototypes = inputs.new_zeros(n_way, embed_dim)  # (n_way, embed_dim)
     prototypes.scatter_add_(0, indices, inputs).div_(k_shot)
 
     return prototypes

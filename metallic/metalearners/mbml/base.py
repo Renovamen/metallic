@@ -78,6 +78,35 @@ class MBML(MetaLearner, ABC):
         torch.save(state, os.path.join(self.root, name))
         return path
 
-    @abstractmethod
     def step(self, batch: dict, meta_train: bool = True) -> Tuple[float]:
+        if meta_train:
+            self.model.train()
+        else:
+            self.model.eval()
+
+        task_batch, n_tasks = self.get_tasks(batch)
+        losses, accuracies = 0., 0.
+
+        self.optim.zero_grad()
+
+        for task_data in task_batch:
+            loss, accuracy = self.single_task(task_data)
+
+            losses += loss.detach().item()
+            accuracies += accuracy.item()
+
+            if meta_train == True:
+                (loss / n_tasks).backward()
+                self.optim.step()
+
+        # average the losses and accuracies
+        losses /= n_tasks
+        accuracies /= n_tasks
+
+        return losses, accuracies
+
+    @abstractmethod
+    def single_task(
+        self, task: Tuple[torch.Tensor], meta_train: bool = True
+    ) -> Tuple[float]:
         pass
