@@ -6,7 +6,7 @@ from torch import nn, optim
 
 from .base import GBML
 from ...utils import get_accuracy
-from ...functional import apply_grads, ProximalRegLoss
+from ...functional import apply_grads, accum_grads, ProximalRegLoss
 
 class MinibatchProx(GBML):
     """
@@ -130,7 +130,7 @@ class MinibatchProx(GBML):
 
         if meta_train == True:
             # apply gradients to the original model parameters
-            apply_grads(self.model, grad_list[-1])
+            apply_grads(self.model, accum_grads(grad_list))
             # outer loop update
             self.out_optim.step()
 

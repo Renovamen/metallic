@@ -5,7 +5,7 @@ from torch import nn, optim
 
 from .base import GBML
 from ...utils import get_accuracy
-from ...functional import apply_grads
+from ...functional import apply_grads, accum_grads
 
 class MAML(GBML):
     """
@@ -123,15 +123,15 @@ class MAML(GBML):
 
                 # compute gradients when in the meta-training stage
                 if meta_train == True:
-                    # query_loss.backward()
+                    # (query_loss / n_tasks).backward()
                     outer_grad = torch.autograd.grad(query_loss / n_tasks, fmodel.parameters(time=0))
                     grad_list.append(outer_grad)
 
         # When in the meta-training stage, update the model's meta-parameters to
         # optimize the query losses across all of the tasks sampled in this batch.
         if meta_train == True:
-            # apply gradients to the original model parameters
-            apply_grads(self.model, grad_list[-1])
+            # apply accumulated gradients to the original model parameters
+            apply_grads(self.model, accum_grads(grad_list))
             # outer loop update
             self.out_optim.step()
 

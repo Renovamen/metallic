@@ -6,7 +6,7 @@ from torch import nn, optim
 
 from .base import GBML
 from ...utils import get_accuracy
-from ...functional import apply_grads
+from ...functional import apply_grads, accum_grads
 
 class Reptile(GBML):
     """
@@ -109,8 +109,8 @@ class Reptile(GBML):
                     grad_list.append(outer_grad)
 
         if meta_train == True:
-            # apply gradients to the original model parameters
-            apply_grads(self.model, grad_list[-1])
+            # apply accumulated gradients to the original model parameters
+            apply_grads(self.model, accum_grads(grad_list))
             # outer loop update
             self.out_optim.step()
 

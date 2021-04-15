@@ -9,20 +9,30 @@ from torch import optim
 from metallic.data.benchmarks import get_benchmarks
 from metallic.data.dataloader import MetaDataLoader
 from metallic.models import OmniglotCNN
-from metallic.metalearners import MAML
+from metallic.metalearners import FOMAML, MAML, Reptile, MinibatchProx
 from metallic.trainer import Trainer
 from metallic.utils import Logger
 
+# ---- hyperparameters ----
+ALGO = 'maml'
 BATCH_SIZE = 16
 N_WAY = 5
 K_SHOT = 1
 OUTER_LR = 0.001
 INNER_LR = 0.4
-INNER_STEPS = 5
+INNER_STEPS = 1
 N_EPOCHES = 100
 N_ITERS_PER_EPOCH = 500
 N_ITERS_TEST = 600
 N_WORKERS = 5
+# -------------------------
+
+ALGO_LIST = {
+    'maml': MAML,
+    'fomaml': FOMAML,
+    'reptile': Reptile,
+    'minibatchprox': MinibatchProx
+}
 
 def set_trainer():
     train_dataset, val_dataset, _ = get_benchmarks(
@@ -39,7 +49,7 @@ def set_trainer():
     in_optim = optim.SGD(model.parameters(), lr=INNER_LR)
     out_optim = optim.Adam(model.parameters(), lr=OUTER_LR)
 
-    metalearner = MAML(
+    metalearner = ALGO_LIST[ALGO](
         model = model,
         in_optim = in_optim,
         out_optim = out_optim,
@@ -51,7 +61,7 @@ def set_trainer():
         root = os.path.join(base_path, 'logs'),
         n_iters_per_epoch = N_ITERS_PER_EPOCH,
         log_basename = metalearner.alg_name,
-        log_interval = 2
+        log_interval = 10
     )
 
     trainer = Trainer(
@@ -69,3 +79,4 @@ def set_trainer():
 if __name__ == '__main__':
     trainer = set_trainer()
     trainer.run_train()
+
