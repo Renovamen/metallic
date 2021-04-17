@@ -10,18 +10,35 @@ class GBML(MetaLearner, ABC):
     """
     A base class for gradient-based meta-learning algorithms.
 
-    Args:
-        model (torch.nn.Module): Model to be wrapped
-        in_optim (torch.optim.Optimizer): Optimizer for the inner loop
-        out_optim (torch.optim.Optimizer): Optimizer for the outer loop
-        root (str): Root directory to save checkpoints
-        save_basename (str, optional): Base name of the saved checkpoints
-        lr_scheduler (callable, optional): Learning rate scheduler
-        loss_function (callable, optional): Loss function
-        inner_steps (int, optional, defaut=1): Number of gradient descent
-            updates in inner loop
-        device (optional): Device on which the model is defined. If `None`,
-            device will be detected automatically.
+    Parameters
+    ----------
+    model : torch.nn.Module
+        Model to be wrapped
+
+    in_optim : torch.optim.Optimizer
+        Optimizer for the inner loop
+
+    out_optim : torch.optim.Optimizer
+        Optimizer for the outer loop
+
+    root : str
+        Root directory to save checkpoints
+
+    save_basename : str, optional
+        Base name of the saved checkpoints
+
+    lr_scheduler : callable, optional
+        Learning rate scheduler
+
+    loss_function : callable, optional
+        Loss function
+
+    inner_steps : int, optional, defaut=1
+        Number of gradient descent updates in inner loop
+
+    device : optional
+        Device on which the model is defined. If `None`, device will be
+        detected automatically.
     """
 
     def __init__(
@@ -51,10 +68,15 @@ class GBML(MetaLearner, ABC):
         self.out_optim = out_optim
         self.inner_steps = inner_steps
 
-    @abstractmethod
-    def inner_loop(self) -> None:
+    @torch.enable_grad()
+    def inner_loop(self, fmodel, diffopt, train_input, train_target) -> None:
         """Inner loop update."""
-        pass
+        for step in range(self.inner_steps):
+            # compute loss on the support set
+            train_output = fmodel(train_input)
+            support_loss = self.loss_function(train_output, train_target)
+            # update parameters
+            diffopt.step(support_loss)
 
     @classmethod
     def load(cls, model_path: str, **kwargs):

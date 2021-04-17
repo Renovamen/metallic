@@ -20,9 +20,10 @@ The supported interface algorithms currently include:
 
 #### Gradient-based
 
-- [Model-Agnostic Meta-Learning (MAML)](https://arxiv.org/abs/1703.03400), including first-order version
+- [Model-Agnostic Meta-Learning (MAML)](https://arxiv.org/abs/1703.03400), including first-order version (FOMAML)
 - [Reptile](https://arxiv.org/abs/1803.02999)
 - [Minibatch Proximal Update](https://panzhous.github.io/assets/pdf/2019-NIPS-metaleanring.pdf)
+- [Almost No Inner Loop (ANIL)](https://arxiv.org/pdf/1909.09157.pdf)
 
 #### Metric-based
 

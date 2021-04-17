@@ -7,14 +7,10 @@ from .base import GBML
 from ...utils import get_accuracy
 from ...functional import apply_grads, accum_grads
 
-class MAML(GBML):
+class ANIL(GBML):
     """
-    Implementation of Model-Agnostic Meta-Learning (MAML) algorithm proposed
-    in [1].
-
-    `Here <https://github.com/cbfinn/maml>`_ is the official implementation
-    of MAML based on Tensorflow.
-
+    Implementation of Almost No Inner Loop (ANIL) algorithm proposed in [1],
+    which only update the head of the neural netowork in inner loop.
 
     Parameters
     ----------
@@ -42,20 +38,17 @@ class MAML(GBML):
     inner_steps : int, optional, defaut=1
         Number of gradient descent updates in inner loop
 
-    first_order : bool, optional, default=False
-        Use the first-order approximation of MAML (FOMAML) or not
-
     device : optional
         Device on which the model is defined
 
 
     .. admonition:: References
 
-        1. "`Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks. \
-            <https://arxiv.org/abs/1703.03400>`_" Chelsea Finn, et al. ICML 2017.
+        1. "`Rapid Learning or Feature Reuse? Towards Understanding the Effectiveness \
+            of MAML. <https://arxiv.org/abs/1909.09157>`_" Aniruddh Raghu, et al. ICLR 2020.
     """
 
-    alg_name = 'MAML'
+    alg_name = 'ANIL'
 
     def __init__(
         self,
@@ -67,13 +60,12 @@ class MAML(GBML):
         lr_scheduler: Optional[Callable] = None,
         loss_function: Optional[Callable] = None,
         inner_steps: int = 1,
-        first_order: bool = False,
         device: Optional = None
     ) -> None:
         if save_basename is None:
             save_basename = self.alg_name
 
-        super(MAML, self).__init__(
+        super(ANIL, self).__init__(
             model = model,
             in_optim = in_optim,
             out_optim = out_optim,
@@ -85,43 +77,33 @@ class MAML(GBML):
             device = device
         )
 
-        self.first_order = first_order
+        self.encoder = model.encoder
+        self.head = model.classifier
 
     def step(self, batch: dict, meta_train: bool = True) -> Tuple[float]:
         """Outer loop update."""
-
-        # clear gradient of last batch
         self.out_optim.zero_grad()
 
-        # get task batch
         task_batch, n_tasks = self.get_tasks(batch)
 
-        # loss and accuracy on query set (outer loop)
         outer_loss, outer_accuracy = 0., 0.
-
-        # record gradients
-        grad_list = []
+        encoder_grad_list, head_grad_list = [], []
 
         for task_data in task_batch:
-            # input: (n_way × k_shot, channels, img_size, img_size)
-            # target: (n_way × k_shot)
             support_input, support_target, query_input, query_target = task_data
 
-            # Use higher to make the model stateless and use differentiable
-            # optimizer. So that the model's parameters can be automatically
-            # kept copies of as they are being updated.
             with higher.innerloop_ctx(
-                self.model, self.in_optim, track_higher_grads=(meta_train and (not self.first_order))
-            ) as (fmodel, diffopt):
-                # fmodel: stateless version of the model
-                # diffopt: differentiable version of the optimizer
-
+                self.head, self.in_optim, copy_initial_weights=False, track_higher_grads=meta_train
+            ) as (fhead, diffopt):
+                with torch.no_grad():
+                    support_feature = self.encoder(support_input)
                 # inner loop (adapt)
-                self.inner_loop(fmodel, diffopt, support_input, support_target)
+                self.inner_loop(fhead, diffopt, support_feature, support_target)
 
                 # evaluate on the query set
                 with torch.set_grad_enabled(meta_train):
-                    query_output = fmodel(query_input)
+                    quert_feature = self.encoder(query_input)
+                    query_output = fhead(quert_feature)
                     query_loss = self.loss_function(query_output, query_target)
                     query_loss /= len(query_input)
 
@@ -133,15 +115,9 @@ class MAML(GBML):
 
                 # compute gradients when in the meta-training stage
                 if meta_train == True:
-                    # (query_loss / n_tasks).backward()
-                    outer_grad = torch.autograd.grad(query_loss / n_tasks, fmodel.parameters(time=0))
-                    grad_list.append(outer_grad)
+                    (query_loss / n_tasks).backward()
 
-        # When in the meta-training stage, update the model's meta-parameters to
-        # optimize the query losses across all of the tasks sampled in this batch.
         if meta_train == True:
-            # apply accumulated gradients to the original model parameters
-            apply_grads(self.model, accum_grads(grad_list))
             # outer loop update
             self.out_optim.step()
 

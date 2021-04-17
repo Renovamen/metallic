@@ -9,12 +9,12 @@ from torch import optim
 from metallic.data.benchmarks import get_benchmarks
 from metallic.data.dataloader import MetaDataLoader
 from metallic.models import OmniglotCNN
-from metallic.metalearners import FOMAML, MAML, Reptile, MinibatchProx
+from metallic.metalearners import FOMAML, MAML, Reptile, MinibatchProx, ANIL
 from metallic.trainer import Trainer
 from metallic.utils import Logger
 
 # ---- hyperparameters ----
-ALGO = 'maml'
+ALGO = 'anil'
 BATCH_SIZE = 16
 N_WAY = 5
 K_SHOT = 1
@@ -31,7 +31,8 @@ ALGO_LIST = {
     'maml': MAML,
     'fomaml': FOMAML,
     'reptile': Reptile,
-    'minibatchprox': MinibatchProx
+    'minibatchprox': MinibatchProx,
+    'anil': ANIL
 }
 
 def set_trainer():
@@ -46,7 +47,11 @@ def set_trainer():
     val_loader = MetaDataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
     model = OmniglotCNN(N_WAY)
-    in_optim = optim.SGD(model.parameters(), lr=INNER_LR)
+
+    if ALGO == 'anil':
+        in_optim = optim.SGD(model.classifier.parameters(), lr=INNER_LR)
+    else:
+        in_optim = optim.SGD(model.parameters(), lr=INNER_LR)
     out_optim = optim.Adam(model.parameters(), lr=OUTER_LR)
 
     metalearner = ALGO_LIST[ALGO](
@@ -79,4 +84,3 @@ def set_trainer():
 if __name__ == '__main__':
     trainer = set_trainer()
     trainer.run_train()
-

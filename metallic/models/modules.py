@@ -3,7 +3,7 @@ from collections import OrderedDict
 import torch
 from torch import nn
 
-class Flatten(torch.nn.Module):
+class Flatten(nn.Module):
     """
     Flatten input tensor to ``(batch_size, -1)`` shape.
     """
@@ -15,15 +15,25 @@ class ConvBlock(nn.Module):
     """
     A base convolutional block.
 
-    Args:
-        in_channels (int): Number of channels in the input image
-        out_channels (int): Number of channels produced by the convolution
-        kernel_size (int or tuple, optional, default=3): Size of the
-            convolving kernel
-        stride (int or tuple, optional, default=1): Stride of the convolution
-        pool_kernel_size (int or tuple, optional, default=2): ``kernel_size`` of
-            the max pooling layer.
-        dropout (float, optional): dropout, ``None`` if no dropout layer
+    Parameters
+    ----------
+    in_channels : int
+        Number of channels in the input image
+
+    out_channels : int
+        Number of channels produced by the convolution
+
+    kernel_size : int or tuple, optional, default=3
+        Size of the convolving kernel
+
+    stride : int or tuple, optional, default=1
+        Stride of the convolution
+
+    pool_kernel_size : int or tuple, optional, default=2)
+        ``kernel_size`` of the max pooling layer
+
+    dropout : float, optional
+        Dropout, ``None`` if no dropout layer
     """
 
     def __init__(
@@ -73,22 +83,33 @@ class ConvGroup(nn.Module):
     """
     A base convolutional group.
 
-    Args:
-        in_channels (int, optional, default=1): Number of channels in the
-            input image
-        hidden_size (int, optional, default=64): Dimensionality of the
-            hidden representation
-        kernel_size (int or tuple, optional, default=3): Size of the
-            convolving kernel
-        stride (int or tuple, optional, default=1): Stride of the convolution
-        pool_kernel_size (int or tuple, optional, default=2): ``kernel_size`` of
-            the max pooling layer.
-        dropout (float, optional): dropout, ``None`` if no dropout layer
-        layers (int, optional, default=4): Number of convolutional layers
+    Parameters
+    ----------
+    in_channels : int, optional, default=1
+        Number of channels in the input image
 
-    NOTE:
-        - Omniglot: hidden_size=64, in_channels=1, pool=False
-        - MiniImagenet: hidden_size=32, in_channels=3, pool=True
+    hidden_size : int, optional, default=64
+        Dimensionality of the hidden representation
+
+    kernel_size : int or tuple, optional, default=3
+        Size of the convolving kernel
+
+    stride : int or tuple, optional, default=1
+        Stride of the convolution
+
+    pool_kernel_size : int or tuple, optional, default=2)
+        ``kernel_size`` of the max pooling layer
+
+    dropout : float, optional
+        dropout, ``None`` if no dropout layer
+
+    layers : int, optional, default=4
+        Number of convolutional layers
+
+    Notes
+    -----
+    - Omniglot: hidden_size=64, in_channels=1, pool=False
+    - MiniImagenet: hidden_size=32, in_channels=3, pool=True
     """
 
     def __init__(
@@ -137,15 +158,19 @@ class LinearBlock(nn.Module):
     """
     A base linear block.
 
-    Args:
-        input_size (int): Size of each input sample
-        output_size (int): Size of each output sample
+    Parameters
+    ----------
+    input_size : int
+        Size of each input sample
+
+    output_size : int
+        Size of each output sample
     """
 
     def __init__(self, in_features: int, out_features: int):
         super(LinearBlock, self).__init__()
         self.core = nn.Sequential(
-            nn.Linear(in_features, output_size),
+            nn.Linear(in_features, out_features),
             nn.BatchNorm1d(out_features),
             nn.ReLU()
         )
@@ -156,6 +181,6 @@ class LinearBlock(nn.Module):
         nn.init.xavier_uniform_(self.core[0].weight)
         nn.init.constant_(self.core[0].bias.data, 0.0)
 
-    def foward(self, x: torch.Tensor):
+    def forward(self, x: torch.Tensor):
         output = self.core(x)
         return output

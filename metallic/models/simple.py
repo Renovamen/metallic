@@ -14,10 +14,12 @@ class OmniglotCNN(nn.Module):
     This network assumes the images are downsampled to 28 × 28 and have 1
     channel. Namely, the shapes of inputs are (1, 28, 28).
 
-    Args:
-        n_classes (int): Size of the network's output. This corresponds to
-            ``N`` in ``N-way`` classification. ``None`` if the linear classifier
-            is not needed.
+    Parameters
+    ----------
+    n_classes : int
+        Size of the network's output. This corresponds to ``N`` in ``N-way``
+        classification. ``None`` if the linear classifier is not needed.
+
 
     .. admonition:: References
 
@@ -29,12 +31,16 @@ class OmniglotCNN(nn.Module):
         super(OmniglotCNN, self).__init__()
 
         self.hidden_size = 64
-        self.encoder = ConvGroup(
+
+        base = ConvGroup(
             in_channels = 1,
             hidden_size = self.hidden_size,
             layers = 4
         )
-        self.flatten = Flatten()
+        self.encoder = nn.Sequential(
+            base,  # (batch_size, 64, 28 / 16 = 1, 28 / 16 = 1)
+            Flatten()  # (batch_size, 64)
+        )
         self.n_classes = n_classes
 
         if n_classes:
@@ -47,17 +53,18 @@ class OmniglotCNN(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Args:
-            x (torch.Tensor): Input data (batch_size, in_channels = 1,
-                img_size = 28, img_size = 28)
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input data (batch_size, in_channels=1, img_size=28, img_size=28)
 
-        Returns:
-            output (torch.Tensor): If ``n_classes`` is not None, return class \
-            scores ``(batch_size, n_classes)``, or return embedded features \
-            ``(batch_size, 64)``.
+        Returns
+        -------
+        output : torch.Tensor
+            If ``n_classes`` is not None, return class scores ``(batch_size,
+            n_classes)``, or return embedded features ``(batch_size, 64)``
         """
-        features = self.encoder(x)  # (batch_size, 64, 28 / 16 = 1, 28 / 16 = 1)
-        output = self.flatten(features)  # (batch_size, 64)
+        output = self.encoder(x)  # (batch_size, 64)
 
         if self.n_classes:
             output = self.classifier(output)  # (batch_size, n_classes)
@@ -76,10 +83,12 @@ class MiniImagenetCNN(nn.Module):
     This network assumes the images are downsampled to 84 × 84 and have 3
     channel. Namely, the shapes of inputs are (3, 84, 84).
 
-    Args:
-        n_classes (int): Size of the network's output. This corresponds to
-            ``N`` in ``N-way`` classification. ``None`` if the linear classifier
-            is not needed.
+    Parameters
+    ----------
+    n_classes : int, optional
+        Size of the network's output. This corresponds to ``N`` in ``N-way``
+        classification. ``None`` if the linear classifier is not needed.
+
 
     .. admonition:: References
 
@@ -91,12 +100,16 @@ class MiniImagenetCNN(nn.Module):
         super(OmniglotCNN, self).__init__()
 
         self.hidden_size = 32
-        self.encoder = ConvGroup(
+
+        base = ConvGroup(
             in_channels = 3,
             hidden_size = self.hidden_size,
             layers = 4
         )
-        self.flatten = Flatten()
+        self.encoder = nn.Sequential(
+            base,  # (batch_size, 32, 84 / 16 = 5, 84 / 16 = 5)
+            Flatten()  # (batch_size, 32 × 5 × 5 = 800)
+        )
         self.n_classes = n_classes
 
         if n_classes:
@@ -109,17 +122,18 @@ class MiniImagenetCNN(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Args:
-            x (torch.Tensor): Input data (batch_size, in_channels = 3,
-                img_size = 84, img_size = 84)
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input data (batch_size, in_channels=3, img_size=84, img_size=84)
 
-        Returns:
-            output (torch.Tensor): If ``n_classes`` is not None, return class \
-            scores ``(batch_size, n_classes)``, or return embedded features \
-            ``(batch_size, 800)``.
+        Returns
+        -------
+        output : torch.Tensor
+            If ``n_classes`` is not None, return class scores ``(batch_size,
+            n_classes)``, or return embedded features ``(batch_size, 800)``.
         """
-        features = self.encoder(x)  # (batch_size, 32, 84 / 16 = 5, 84 / 16 = 5)
-        output = self.flatten(features)  # (batch_size, 32 × 5 × 5 = 800)
+        output = self.encoder(x)  # (batch_size, 800)
 
         if self.n_classes:
             output = self.classifier(output)  # (batch_size, n_classes)
@@ -136,10 +150,15 @@ class OmniglotMLP(nn.Module):
     normalization and ReLU nonlinearities, followed by a linear layer and
     softmax.
 
-    Args:
-        input_size (int): Size of the network's input
-        n_classes (int): Size of the network's output. This corresponds to
-            ``N`` in ``N-way`` classification.
+    Parameters
+    ----------
+    input_size : int
+        Size of the network's input
+
+    n_classes : int
+        Size of the network's output. This corresponds to ``N`` in ``N-way``
+        classification.
+
 
     .. admonition:: References
 
@@ -152,12 +171,15 @@ class OmniglotMLP(nn.Module):
 
         linear_sizes = [input_size, 256, 128, 64, 64]
 
-        self.encoder = nn.Sequential(
+        layers = [
             LinearBlock(in_size, out_size)
             for in_size, out_size in zip(linear_sizes[:-1], linear_sizes[1:])
-        )
+        ]
+        base = nn.Sequential(*layers)
+
+        self.encoder = nn.Sequential(Flatten(), base)
+
         self.classifier = nn.Linear(linear_sizes[-1], n_classes)
-        self.flatten = Flatten()
         self.init_weights()
 
     def init_weights(self) -> None:
@@ -165,7 +187,6 @@ class OmniglotMLP(nn.Module):
         self.classifier.bias.data.mul_(0.0)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.flatten(x)
         features = self.encoder(x)
         output = self.classifier(features)
         return output

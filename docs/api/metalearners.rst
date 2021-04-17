@@ -38,6 +38,10 @@ Gradient-Based Meta-Learning
    :undoc-members:
    :show-inheritance:
 
+.. autoclass:: ANIL
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Metric-Based Meta-Learning
 ------------------------------

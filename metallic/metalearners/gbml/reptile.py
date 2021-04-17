@@ -15,17 +15,35 @@ class Reptile(GBML):
     `Here <https://github.com/openai/supervised-reptile>`_ is the official
     implementation of Reptile based on Tensorflow.
 
-    Args:
-        model (torch.nn.Module): Model to be wrapped
-        in_optim (torch.optim.Optimizer): Optimizer for the inner loop
-        out_optim (torch.optim.Optimizer): Optimizer for the outer loop
-        root (str): Root directory to save checkpoints
-        save_basename (str, optional): Base name of the saved checkpoints
-        lr_scheduler (callable, optional): Learning rate scheduler
-        loss_function (callable, optional): Loss function
-        inner_steps (int, optional, defaut=1): Number of gradient descent
-            updates in inner loop
-        device (optional): Device on which the model is defined
+    Parameters
+    ----------
+    model : torch.nn.Module
+        Model to be wrapped
+
+    in_optim : torch.optim.Optimizer
+        Optimizer for the inner loop
+
+    out_optim : torch.optim.Optimizer
+        Optimizer for the outer loop
+
+    root : str
+        Root directory to save checkpoints
+
+    save_basename : str, optional
+        Base name of the saved checkpoints
+
+    lr_scheduler : callable, optional
+        Learning rate scheduler
+
+    loss_function : callable, optional
+        Loss function
+
+    inner_steps : int, optional, defaut=1
+        Number of gradient descent updates in inner loop
+
+    device : optional
+        Device on which the model is defined
+
 
     .. admonition:: References
 
@@ -61,14 +79,6 @@ class Reptile(GBML):
             inner_steps = inner_steps,
             device = device
         )
-
-    @torch.enable_grad()
-    def inner_loop(self, fmodel, diffopt, train_input, train_target) -> None:
-        """Inner loop update."""
-        for step in range(self.inner_steps):
-            train_output = fmodel(train_input)
-            support_loss = self.loss_function(train_output, train_target)
-            diffopt.step(support_loss)
 
     def step(self, batch: dict, meta_train: bool = True) -> Tuple[float]:
         """Outer loop update."""
