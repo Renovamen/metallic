@@ -4,7 +4,6 @@ import torch
 from torch import nn, optim
 
 from .base import GBML
-from ...utils import get_accuracy
 from ...functional import apply_grads, accum_grads
 
 class ANIL(GBML):
@@ -80,49 +79,30 @@ class ANIL(GBML):
         self.encoder = model.encoder
         self.head = model.classifier
 
-    def step(self, batch: dict, meta_train: bool = True) -> Tuple[float]:
-        """Outer loop update."""
-        self.out_optim.zero_grad()
+    def compute_outer_grads(
+        self, task: Tuple[torch.Tensor], n_tasks: int, meta_train: bool = True
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Compute gradients on query set."""
 
-        task_batch, n_tasks = self.get_tasks(batch)
+        support_input, support_target, query_input, query_target = task
 
-        outer_loss, outer_accuracy = 0., 0.
-        encoder_grad_list, head_grad_list = [], []
+        with higher.innerloop_ctx(
+            self.head, self.in_optim, copy_initial_weights=False, track_higher_grads=meta_train
+        ) as (fhead, diffopt):
+            with torch.no_grad():
+                support_feature = self.encoder(support_input)
+            # inner loop (adapt)
+            self.inner_loop(fhead, diffopt, support_feature, support_target)
 
-        for task_data in task_batch:
-            support_input, support_target, query_input, query_target = task_data
+            # evaluate on the query set
+            with torch.set_grad_enabled(meta_train):
+                quert_feature = self.encoder(query_input)
+                query_output = fhead(quert_feature)
+                query_loss = self.loss_function(query_output, query_target)
+                query_loss /= len(query_input)
 
-            with higher.innerloop_ctx(
-                self.head, self.in_optim, copy_initial_weights=False, track_higher_grads=meta_train
-            ) as (fhead, diffopt):
-                with torch.no_grad():
-                    support_feature = self.encoder(support_input)
-                # inner loop (adapt)
-                self.inner_loop(fhead, diffopt, support_feature, support_target)
+            # compute gradients when in the meta-training stage
+            if meta_train == True:
+                (query_loss / n_tasks).backward()
 
-                # evaluate on the query set
-                with torch.set_grad_enabled(meta_train):
-                    quert_feature = self.encoder(query_input)
-                    query_output = fhead(quert_feature)
-                    query_loss = self.loss_function(query_output, query_target)
-                    query_loss /= len(query_input)
-
-                # find accuracy on query set
-                query_accuracy = get_accuracy(query_output, query_target)
-
-                outer_loss += query_loss.detach().item()
-                outer_accuracy += query_accuracy.item()
-
-                # compute gradients when in the meta-training stage
-                if meta_train == True:
-                    (query_loss / n_tasks).backward()
-
-        if meta_train == True:
-            # outer loop update
-            self.out_optim.step()
-
-        # average the losses and accuracies
-        outer_loss /= n_tasks
-        outer_accuracy /= n_tasks
-
-        return outer_loss, outer_accuracy
+        return query_output, query_loss

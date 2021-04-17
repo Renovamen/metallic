@@ -12,17 +12,35 @@ class FOMAML(MAML):
     `Here <https://github.com/cbfinn/maml>`_ is the official implementation
     of MAML based on Tensorflow.
 
-    Args:
-        model (torch.nn.Module): Model to be wrapped
-        in_optim (torch.optim.Optimizer): Optimizer for the inner loop
-        out_optim (torch.optim.Optimizer): Optimizer for the outer loop
-        root (str): Root directory to save checkpoints
-        save_basename (str, optional): Base name of the saved checkpoints
-        lr_scheduler (callable, optional): Learning rate scheduler
-        loss_function (callable, optional): Loss function
-        inner_steps (int, optional, defaut=1): Number of gradient descent
-            updates in inner loop
-        device (optional): Device on which the model is defined
+    Parameters
+    ----------
+    model : torch.nn.Module
+        Model to be wrapped
+
+    in_optim : torch.optim.Optimizer
+        Optimizer for the inner loop
+
+    out_optim : torch.optim.Optimizer
+        Optimizer for the outer loop
+
+    root : str
+        Root directory to save checkpoints
+
+    save_basename : str, optional
+        Base name of the saved checkpoints
+
+    lr_scheduler : callable, optional
+        Learning rate scheduler
+
+    loss_function : callable, optional
+        Loss function
+
+    inner_steps : int, optional, defaut=1
+        Number of gradient descent updates in inner loop
+
+    device : optional
+        Device on which the model is defined
+
 
     .. admonition:: References
 

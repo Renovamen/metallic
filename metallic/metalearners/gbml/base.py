@@ -5,6 +5,7 @@ import torch
 from torch import nn, optim
 
 from ..base import MetaLearner
+from ...utils import get_accuracy
 
 class GBML(MetaLearner, ABC):
     """
@@ -115,3 +116,55 @@ class GBML(MetaLearner, ABC):
         path = os.path.join(self.root, name)
         torch.save(state, os.path.join(self.root, name))
         return path
+
+    @abstractmethod
+    def compute_outer_grads(
+        self, batch: Tuple[torch.Tensor], meta_train: bool = True
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Compute gradients on query set."""
+        pass
+
+    def clear_before_outer_loop(self):
+        """Initialization before each outer loop if needed."""
+        pass
+
+    def outer_loop_update(self):
+        """Update the model's meta-parameters to optimize the query loss."""
+        self.out_optim.step()
+
+    def step(self, batch: dict, meta_train: bool = True) -> Tuple[float]:
+        """Outer loop"""
+
+        # clear gradient of last batch
+        self.out_optim.zero_grad()
+
+        # loss and accuracy on query set (outer loop)
+        outer_loss, outer_accuracy = 0., 0.
+
+        self.clear_before_outer_loop()
+
+        # get task batch
+        task_batch, n_tasks = self.get_tasks(batch)
+
+        for task in task_batch:
+            # compute outer loop gradients
+            query_output, query_loss = self.compute_outer_grads(task, n_tasks, meta_train)
+
+            # find accuracy on query set
+            _, _, _, query_target = task
+            query_accuracy = get_accuracy(query_output, query_target)
+
+            # record losses and accuracy
+            outer_loss += query_loss.detach().item()
+            outer_accuracy += query_accuracy.item()
+
+        # When in the meta-training stage, update the model's meta-parameters to
+        # optimize the query loss across all of the tasks sampled in this batch.
+        if meta_train == True:
+            self.outer_loop_update()
+
+        # average loss and acccuracy
+        outer_loss /= n_tasks
+        outer_accuracy /= n_tasks
+
+        return outer_loss, outer_accuracy

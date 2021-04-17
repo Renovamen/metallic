@@ -14,7 +14,7 @@ from metallic.trainer import Trainer
 from metallic.utils import Logger
 
 # ---- hyperparameters ----
-ALGO = 'anil'
+ALGO = 'minibatchprox'
 BATCH_SIZE = 16
 N_WAY = 5
 K_SHOT = 1
