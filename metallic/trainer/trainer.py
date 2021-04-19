@@ -11,20 +11,28 @@ class Trainer:
     """
     A wrap of training procedure for meta-learning algorithms.
 
-    Args:
-        metalearner (MetaLearner): An instance of :class:`~metallic.metalearners.MetaLearner`
-            class
-        train_loader (MetaDataLoader): Train data loader, an instance of
-            :class:`~metallic.data.dataloader.MetaDataLoader` class
-        val_loader (MetaDataLoader, optional): Validation data loader, an
-            instance of :class:`~metallic.data.dataloader.MetaDataLoader` class
-        n_epoches (int, optional, default=100): Number of epoches
-        n_iters_per_epoch (int, optional, default=500): Number of the iterations
-            per epoch
-        n_iters_test (int, optional, default=600): Number of the iterations
-            during meta-test stage
-        logger (Logger, optional): An instance of
-            :class:`~metallic.utils.logger.Logger` class
+    Parameters
+    ----------
+    metalearner : MetaLearner
+        An instance of :class:`~metallic.metalearners.MetaLearner` class
+
+    train_loader : MetaDataLoader)
+        Train data loader, an instance of :class:`~metallic.data.dataloader.MetaDataLoader` class
+
+    val_loader : MetaDataLoader, optional
+        Validation data loader, an instance of :class:`~metallic.data.dataloader.MetaDataLoader` class
+
+    n_epoches : int, optional, default=100
+        Number of epoches
+
+    n_iters_per_epoch : int, optional, default=500
+        Number of the iterations per epoch
+
+    n_iters_test : int, optional, default=600
+        Number of the iterations during meta-test stage
+
+    logger : Logger, optional
+        An instance of :class:`~metallic.utils.logger.Logger` class
     """
 
     def __init__(
@@ -102,7 +110,7 @@ class Trainer:
             if (i_iter + 1) >= n_iters:
                 break
 
-        return tracker.metrics['accuracy'].mean()
+        return tracker['accuracy'].mean
 
     def run_train(self):
         """Run training procedure."""

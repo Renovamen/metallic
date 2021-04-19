@@ -4,18 +4,30 @@ from numbers import Number
 from typing import Union
 from torch.utils.tensorboard import SummaryWriter
 
-from .basic import get_datetime
+from .common import get_datetime, mkdir
 
 class Logger:
     """
     A loggger to log and visualize (based on Tensorboard) statistics.
 
-    Args:
-        root (str): Root directory of the log files
-        n_iters_per_epoch (int): Number of the iterations per epoch
-        log_basename (str, optional, default=''): Base name of the log file
-        log_interval (int, optional, default=100): Log interval
-        tensorboard (bool, optional, default=True): Enable tensorboard or not
+    Parameters
+    ----------
+    root : str
+        Root directory of the log files
+
+    n_iters_per_epoch : int
+        Number of the iterations per epoch
+
+    log_basename : str, optional, default=''
+        Base name of the log file
+
+    log_interval : int, optional, default=100
+        Steps between info loggings
+
+    tensorboard : bool, optional, default=False
+        Enable tensorboard or not (``tensorboard`` package is required)
+
+    verbose: bool, optional, default=False
     """
 
     def __init__(
@@ -24,7 +36,8 @@ class Logger:
         n_iters_per_epoch: int,
         log_basename: str = '',
         log_interval: int = 100,
-        tensorboard: bool = True
+        tensorboard: bool = False,
+        verbose: bool = False
     ) -> None:
         self.root = os.path.expanduser(root)
         self.timestamp = get_datetime()
@@ -32,21 +45,24 @@ class Logger:
         self.n_iters_per_epoch = n_iters_per_epoch
         self.log_interval = log_interval
         self.log_basename = log_basename
+        self.verbose = verbose
 
         self.text_path = os.path.join(self.root, 'text')
-        self.mkdir(self.text_path)
+        mkdir(self.text_path)
 
+        self.writter = None
         if tensorboard:
-            self.tensorboard_path = os.path.join(
-                self.root, 'tensorboard', self.log_basename + '_' + self.timestamp
-            )
-            self.mkdir(self.tensorboard_path)
-            self.writter = SummaryWriter(self.tensorboard_path)
-
-    @staticmethod
-    def mkdir(path: str):
-        if not os.path.exists(path):
-            os.makedirs(path)
+            self.tensorboard_path = os.path.join(self.root, 'tensorboard', self.log_name)
+            mkdir(self.tensorboard_path)
+            try:
+                from torch.utils.tensorboard import SummaryWriter
+                self.writter = SummaryWriter(self.tensorboard_path)
+            except ImportError:
+                print(
+                    "Warning: Tensorboard is configured to use, but currently not "
+                    "installed on this machine. Please install Tensorboard with "
+                    "'pip install tensorboard' or set ``tensorboard`` to ``False``."
+                )
 
     def write_tensorboard(
         self, key: str, x: Union[Number, np.number], y: Union[Number, np.number]
@@ -94,10 +110,14 @@ class Logger:
             for name, value in data.items():
                 # log statistics to Tensorboard
                 if self.writter is not None:
-                    self.write_tensorboard(name, step, value[-1])
+                    self.write_tensorboard(name, step, value.recent)
                 # log statistics to text files
                 text += '{name} {recent:.3f} ({mean:.3f})\t'.format(
-                    name = name, recent = value[-1], mean = value.mean()
+                    name = name, recent = value.recent, mean = value.mean
                 )
             self.write_text(text + '\n')
+
+            if self.verbose:
+                print(text)
+
             self.last_log_step = step

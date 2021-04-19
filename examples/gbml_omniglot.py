@@ -14,7 +14,7 @@ from metallic.trainer import Trainer
 from metallic.utils import Logger
 
 # ---- hyperparameters ----
-ALGO = 'minibatchprox'
+ALGO = 'maml'
 BATCH_SIZE = 16
 N_WAY = 5
 K_SHOT = 1
@@ -66,7 +66,7 @@ def set_trainer():
         root = os.path.join(base_path, 'logs'),
         n_iters_per_epoch = N_ITERS_PER_EPOCH,
         log_basename = metalearner.alg_name,
-        log_interval = 10
+        verbose = True
     )
 
     trainer = Trainer(
