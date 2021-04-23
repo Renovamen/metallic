@@ -9,10 +9,12 @@ from torch import optim
 from metallic.data.benchmarks import get_benchmarks
 from metallic.data.dataloader import MetaDataLoader
 from metallic.models import OmniglotCNN
-from metallic.metalearners import ProtoNet
+from metallic.metalearners import ProtoNet, MatchNet
 from metallic.trainer import Trainer
 from metallic.utils import Logger
 
+# ---- hyperparameters ----
+ALGO = 'protonet'
 BATCH_SIZE = 16
 N_WAY = 5
 K_SHOT = 1
@@ -21,6 +23,12 @@ N_EPOCHES = 100
 N_ITERS_PER_EPOCH = 100
 N_ITERS_TEST = 100
 N_WORKERS = 5
+# -------------------------
+
+ALGO_LIST = {
+    'protonet': ProtoNet,
+    'matchnet': MatchNet
+}
 
 def set_trainer():
     train_dataset, val_dataset, _ = get_benchmarks(
@@ -36,7 +44,7 @@ def set_trainer():
     model = OmniglotCNN()
     optimizer = optim.Adam(model.parameters(), lr=LR)
 
-    metalearner = ProtoNet(
+    metalearner = ALGO_LIST[ALGO](
         model = model,
         optim = optimizer,
         root = os.path.join(base_path, 'checkpoints')
