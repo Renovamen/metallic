@@ -2,7 +2,6 @@ import os
 import numpy as np
 from numbers import Number
 from typing import Union
-from torch.utils.tensorboard import SummaryWriter
 
 from .common import get_datetime, mkdir
 

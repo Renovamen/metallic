@@ -1,3 +1,3 @@
-from .base import *
-from .omniglot import *
-from .miniimagenet import *
+from .base import Dataset, ClassDataset, TaskDataset, MetaDataset
+from .omniglot import OmniglotClassDataset, Omniglot
+from .miniimagenet import MiniImageNetClassDataset, MiniImageNet

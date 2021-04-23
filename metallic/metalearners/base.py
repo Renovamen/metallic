@@ -8,14 +8,26 @@ class MetaLearner(ABC):
     """
     A base class for all meta-learning algorithms.
 
-    Args:
-        model (torch.nn.Module): Model to be wrapped
-        root (str): Root directory to save checkpoints
-        save_basename (str, optional): Base name of the saved checkpoints
-        lr_scheduler (callable, optional): Learning rate scheduler
-        loss_function (callable, optional): Loss function
-        device (optional): Device on which the model is defined. If `None`,
-            device will be detected automatically.
+    Parameters
+    ----------
+    model : torch.nn.Module
+        Model to be wrapped
+
+    root : str
+        Root directory to save checkpoints
+
+    save_basename : str, optional
+        Base name of the saved checkpoints
+
+    lr_scheduler : callable, optional
+        Learning rate scheduler
+
+    loss_function : callable, optional
+        Loss function
+
+    device : optional
+        Device on which the model is defined. If `None`, device will be
+        detected automatically.
     """
 
     def __init__(

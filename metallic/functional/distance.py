@@ -7,6 +7,8 @@ import torch
 import torch.nn.functional as f
 from typing import Callable
 
+__all__ = ['get_distance_function']
+
 def euclidean_distance(
     x: torch.FloatTensor, y: torch.FloatTensor
 ) -> torch.FloatTensor:

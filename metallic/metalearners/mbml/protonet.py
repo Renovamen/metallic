@@ -14,17 +14,33 @@ class ProtoNet(MBML):
     `Here <https://github.com/jakesnell/prototypical-networks>`_ is the official
     implementation of Prototypical Networks based on PyTorch.
 
-    Args:
-        model (torch.nn.Module): Model to be wrapped
-        optim (torch.optim.Optimizer): Optimizer
-        root (str): Root directory to save checkpoints
-        save_basename (str, optional): Base name of the saved checkpoints
-        lr_scheduler (callable, optional): Learning rate scheduler
-        loss_function (callable, optional): Loss function
-        distance (str, optional, default='euclidean'): Type of distance function
-            to be used for computing similarity.
-        device (optional): Device on which the model is defined. If `None`,
-            device will be detected automatically.
+    Parameters
+    ----------
+    model : torch.nn.Module
+        Model to be wrapped
+
+    optim : torch.optim.Optimizer
+        Optimizer
+
+    root : str
+        Root directory to save checkpoints
+
+    save_basename : str, optional
+        Base name of the saved checkpoints
+
+    lr_scheduler : callable, optional
+        Learning rate scheduler
+
+    loss_function : callable, optional
+        Loss function
+
+    distance : str, optional, default='euclidean'
+        Type of distance function to be used for computing similarity
+
+    device : optional
+        Device on which the model is defined. If `None`, device will be
+        detected automatically.
+
 
     .. admonition:: References
 

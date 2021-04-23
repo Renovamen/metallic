@@ -1,3 +1,9 @@
-from .base import *
-from .protonet import *
-from .matching import *
+from .base import MBML
+from .protonet import ProtoNet
+from .matching import MatchNet
+
+__all__ = [
+    'MBML',
+    'ProtoNet',
+    'MatchNet'
+]

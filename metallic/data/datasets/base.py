@@ -24,14 +24,23 @@ class Dataset(TorchDataset):
         │         │         │
         sample1   sample2   ...
 
-    Args:
-        index (str): Index of the class
-        data (list): A list of samples in the class
-        class_label (int): Label of the class
-        transform (callable, optional): A function/transform that takes in
-            an PIL image and returns a transformed version
-        target_transform (callable, optional): A function/transform that
-            takes in the target and transforms it
+    Parameters
+    ----------
+    index : str
+        Index of the class
+
+    data : list
+        A list of samples in the class
+
+    class_label : int
+        Label of the class
+
+    transform : Callable, optional
+        A function/transform that takes in an PIL image and returns a
+        transformed version
+
+    target_transform : Callable, optional
+        A function/transform that takes in the target and transforms it
     """
 
     def __init__(
@@ -81,18 +90,29 @@ class ClassDataset(ABC):
         │         │         │
         sample1   sample2   ...
 
-    Args:
-        root (str): Root directory of dataset
-        n_way (int): Number of the classes per tasks
-        meta_split (str, optional, default='train'): Name of the split to
-            be used: 'train' / 'val' / 'test
-        cache_path (str): Path to store the cache file
-        transform (callable, optional): A function/transform that takes in
-            an PIL image and returns a transformed version
-        target_transform (callable, optional): A function/transform that
-            takes in the target and transforms it
-        augmentations (list of callable, optional): A list of functions that
-            augment the dataset with new classes.
+    Parameters
+    ----------
+    root : str
+        Root directory of dataset
+
+    n_way : int
+        Number of the classes per task
+
+    meta_split : str, optional, default='train'
+        Name of the split to be used: 'train' / 'val' / 'test
+
+    cache_path : str
+        Path to store the cache file
+
+    transform : Callable, optional
+        A function/transform that takes in an PIL image and returns a
+        transformed version
+
+    target_transform : Callable, optional
+        A function/transform that takes in the target and transforms it
+
+    augmentations : List[Callable], optional
+        A list of functions that augment the dataset with new classes.
     """
 
     def __init__(
@@ -102,7 +122,7 @@ class ClassDataset(ABC):
         cache_path: str,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
-        augmentations: List[Callable] = None
+        augmentations: Optional[List[Callable]] = None
     ) -> None:
         if meta_split not in ['train', 'val', 'test']:
             raise ValueError(
@@ -137,10 +157,8 @@ class ClassDataset(ABC):
 
     @abstractmethod
     def create_cache(self) -> None:
-        """
-        Iterates over the entire dataset and creates a map of target to samples
-        and list of labels from scratch.
-        """
+        """Iterates over the entire dataset and creates a map of target to
+        samples and list of labels from scratch."""
         pass
 
     def save_cache(self) -> None:
@@ -194,9 +212,13 @@ class TaskDataset(ConcatDataset):
         │        │        │        │        │
         c1_s1    c1_s2    ...      c2_s1    ...
 
-    Args:
-        datasets (list of Dataset): A list of the :class:`Dataset` to be concatenated
-        n_classes (int): Number of the given classes
+    Parameters
+    ----------
+    datasets : List[Dataset]
+        A list of the :class:`Dataset` to be concatenated
+
+    n_classes : int
+        Number of the given classes
     """
     def __init__(self, datasets: List[Dataset], n_classes: int) -> None:
         super(TaskDataset, self).__init__(datasets)
@@ -233,13 +255,23 @@ class MetaDataset(TorchDataset):
     """
     A dataset for fast indexing of samples within classes.
 
-    Args:
-        dataset (ClassDataset): An instance of :class:`ClassDataset` class
-        n_way (int): Number of the classes per tasks
-        k_shot_support (int, optional): Number of samples per class in support set
-        k_shot_query (int, optional):  Number of samples per class in query set
-        shuffle (bool, optional, default=True): If ``True``, samples in a class
-            will be shuffled before been splited to support and query set
+    Parameters
+    ----------
+    dataset : ClassDataset
+        An instance of :class:`ClassDataset` class
+
+    n_way : int
+        Number of the classes per tasks
+
+    k_shot_support : int, optional
+        Number of samples per class in support set
+
+    k_shot_query : int, optional
+        Number of samples per class in query set
+
+    shuffle : bool, optional, default=True
+        If ``True``, samples in a class will be shuffled before been splited
+        to support and query set
     """
     def __init__(
         self,
@@ -264,10 +296,8 @@ class MetaDataset(TorchDataset):
             self.shuffle = shuffle
 
     def split_task(self, task: TaskDataset) -> OrderedDict:
-        """
-        Split a ``TaskDataset`` into support / query set, each of ther set
-        contains ``k_shot_suppor`` / ``k_shot_query`` samples per class.
-        """
+        """Split a ``TaskDataset`` into support / query set, each of ther set
+        contains ``k_shot_suppor`` / ``k_shot_query`` samples per class."""
         indices = OrderedDict([(split, []) for split in self.task_splits])
         cumulative_size = 0
 
@@ -309,9 +339,10 @@ class MetaDataset(TorchDataset):
         """
         Generate a task composed with the given ``n_way`` classes.
 
-        Args:
-            indices (tuple): The ``n_way`` indices of the classes to be sampled
-                in the task.
+        Parameters
+        ----------
+        indices : tuple
+            The ``n_way`` indices of the classes to be sampled in the task
         """
         # make sure the number of classes is equal to n_way
         assert len(indices) == self.n_way
@@ -330,16 +361,12 @@ class MetaDataset(TorchDataset):
         return task
 
     def __iter__(self) -> Iterator:
-        """
-        Iterate all possible tasks composed of ``n_way`` classes.
-        """
+        """Iterate all possible tasks composed of ``n_way`` classes."""
         for index in combinations(range(self.n_classes), self.n_way):
             yield self[index]
 
     def __len__(self) -> int:
-        """
-        Number of all possible tasks composed of ``n_way`` classes.
-        """
+        """Number of all possible tasks composed of ``n_way`` classes."""
         length = 1
         # combination formula
         for i in range(1, self.n_way + 1):

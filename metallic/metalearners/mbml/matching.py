@@ -12,17 +12,33 @@ class MatchNet(MBML):
     """
     Implementation of Matching Networks proposed in [1].
 
-    Args:
-        model (torch.nn.Module): Model to be wrapped
-        optim (torch.optim.Optimizer): Optimizer
-        root (str): Root directory to save checkpoints
-        save_basename (str, optional): Base name of the saved checkpoints
-        lr_scheduler (callable, optional): Learning rate scheduler
-        loss_function (callable, optional): Loss function
-        distance (str, optional, default='cosine'): Type of distance function
-            to be used for computing similarity.
-        device (optional): Device on which the model is defined. If `None`,
-            device will be detected automatically.
+    Parameters
+    ----------
+    model : torch.nn.Module
+        Model to be wrapped
+
+    optim : torch.optim.Optimizer
+        Optimizer
+
+    root : str
+        Root directory to save checkpoints
+
+    save_basename : str, optional
+        Base name of the saved checkpoints
+
+    lr_scheduler : callable, optional
+        Learning rate scheduler
+
+    loss_function : callable, optional
+        Loss function
+
+    distance : str, optional, default='cosine'
+        Type of distance function to be used for computing similarity
+
+    device : optional
+        Device on which the model is defined. If `None`, device will be
+        detected automatically.
+
 
     .. admonition:: References
 
@@ -69,15 +85,19 @@ class MatchNet(MBML):
         points, and the weights should be proportional to the similarity between
         support and query embeddings.
 
-        Args:
-            distance (torch.FloatTensor): Similarity between support points embeddings
-                and query points embeddings, with shape ``(n_samples_query, n_samples_support)``
-            targets (torch.LongTensor): Targets of the support points, with shape
-                ``(n_samples_support)``
+        Parameters
+        ----------
+        distance : torch.FloatTensor
+            Similarity between support points embeddings and query points
+            embeddings, with shape ``(n_samples_query, n_samples_support)``
 
-        Returns:
-            pred_pdf (torch.FloatTensor): Probability distribution over output \
-                labels, with shape ``(n_samples_query, n_way)``
+        targets : torch.LongTensor
+            Targets of the support points, with shape ``(n_samples_support)``
+
+        Returns
+        -------
+        pred_pdf : torch.FloatTensor
+            Probability distribution over output labels, with shape ``(n_samples_query, n_way)``
         """
         n_samples_support = targets.size(-1)  # numper of samples in support set
         n_way = torch.unique(targets).size(0)  # number of samples per class

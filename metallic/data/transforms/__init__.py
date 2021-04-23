@@ -1,4 +1,3 @@
-from .hflip import *
-from .vflip import *
-from .rotation import *
-from .categorical import *
+from .flip import HorizontalFlip, VerticalFlip
+from .rotation import Rotation
+from .categorical import Categorical

@@ -1,4 +1,4 @@
-from .distance import *
-from .gradient import *
-from .loss import *
-from .prototype import *
+from .distance import get_distance_function
+from .gradient import apply_grads, accum_grads
+from .loss import ProximalRegLoss
+from .prototype import get_prototypes

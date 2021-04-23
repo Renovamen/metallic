@@ -135,27 +135,45 @@ class Omniglot(MetaDataset):
     The dataset is downloaded from `here <https://github.com/brendenlake/omniglot>`_,
     and the splits are taken from `here <https://github.com/tristandeleu/pytorch-meta/tree/master/torchmeta/datasets/assets/omniglot>`_.
 
-    Args:
-        root (str): Root directory of dataset
-        n_way (int): Number of the classes per tasks
-        meta_split (str, optional, default='train'): Name of the split to
-            be used: 'train' / 'val' / 'test
-        use_vinyals_split (bool, optional, default=True): If ``True``, use
-            the splits defined in [2], or use ``images_background`` for train
-            split and ``images_evaluation`` for test split.
-        k_shot_support (int, optional): Number of samples per class in support set
-        k_shot_query (int, optional):  Number of samples per class in query set
-        shuffle (bool, optional, default=True): If ``True``, samples in a class
-            will be shuffled before been splited to support and query set
-        transform (callable, optional): A function/transform that takes in
-            an PIL image and returns a transformed version
-        target_transform (callable, optional): A function/transform that
-            takes in the target and transforms it
-        augmentations (list of callable, optional):  A list of functions that
-            augment the dataset with new classes.
-        download (bool, optional, default=False): If true, downloads the dataset
-            zip files from the internet and puts it in root directory. If the
-            zip files are already downloaded, they are not downloaded again.
+    Parameters
+    ----------
+    root : str
+        Root directory of dataset
+
+    n_way : int
+        Number of the classes per tasks
+
+    meta_split : str, optional, default='train'
+        Name of the split to be used: 'train' / 'val' / 'test
+
+    use_vinyals_split : bool, optional, default=True
+        If ``True``, use the splits defined in [2], or use ``images_background``
+        for train split and ``images_evaluation`` for test split.
+
+    k_shot_support : int, optional
+        Number of samples per class in support set
+
+    k_shot_query : int, optional
+        Number of samples per class in query set
+
+    shuffle : bool, optional, default=True
+        If ``True``, samples in a class will be shuffled before been splited
+        to support and query set
+
+    transform : Callable, optional
+        A function/transform that takes in an PIL image and returns a transformed
+        version
+
+    target_transform : Callable, optional
+        A function/transform that takes in the target and transforms it
+
+    augmentations : List[Callable], optional
+        A list of functions that augment the dataset with new classes
+
+    download : bool, optional, default=False
+        If true, downloads the dataset zip files from the internet and puts it
+        in root directory. If the zip files are already downloaded, they are
+        not downloaded again.
 
     NOTE:
         ``val`` split is not available when ``use_vinyals_split`` is set to
@@ -181,7 +199,7 @@ class Omniglot(MetaDataset):
         shuffle: bool = True,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
-        augmentations: List[Callable] = None,
+        augmentations: Optional[List[Callable]] = None,
         download: bool = False
     ) -> None:
         dataset = OmniglotClassDataset(
